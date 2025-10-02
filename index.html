@@ -188,7 +188,7 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 360px;
+            height: 280px;
             overflow: visible;
             pointer-events: none;
         }
@@ -196,9 +196,9 @@
         .fan-container {
             position: absolute;
             width: 1600px;
-            height: 600px;
+            height: 500px;
             left: 50%;
-            bottom: -280px;
+            bottom: -220px;
             transform: translateX(-50%);
             pointer-events: auto;
             cursor: grab;
@@ -210,12 +210,12 @@
 
         .fan-card {
             position: absolute;
-            width: 100px;
-            height: 155px;
+            width: 85px;
+            height: 132px;
             left: 50%;
             bottom: 0;
-            margin-left: -50px;
-            transform-origin: center 360px;
+            margin-left: -42.5px;
+            transform-origin: center 300px;
             pointer-events: none;
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
@@ -486,7 +486,7 @@
                 fanContainer.appendChild(card);
                 
                 const angle = -TOTAL_ANGLE/2 + i * angleStep;
-                card.style.transform = `rotate(${angle}deg) translateY(-360px)`;
+                card.style.transform = `rotate(${angle}deg) translateY(-300px)`;
                 
                 card.style.zIndex = i;
             }
@@ -499,7 +499,7 @@
             cards.forEach((card, i) => {
                 const baseAngle = -TOTAL_ANGLE/2 + i * angleStep;
                 const angle = baseAngle + rotation;
-                card.style.transform = `rotate(${angle}deg) translateY(-360px)`;
+                card.style.transform = `rotate(${angle}deg) translateY(-300px)`;
                 
                 if (Math.abs(angle) > 90) {
                     card.style.opacity = '0';

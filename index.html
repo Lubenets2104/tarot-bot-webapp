@@ -2,56 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Yes or No - Tarot Card Reading</title>
     <style>
-        :root { 
-            --app-w: 414px; 
-            --app-h: 896px;
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        html {
-            overflow: hidden;
+        html, body {
+            width: 100%;
             height: 100%;
+            overflow: hidden;
+            position: fixed;
         }
 
         body {
-            margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             background: #000;
-            min-height: 100vh;
-            height: 100vh;
-            overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             user-select: none;
             -webkit-user-select: none;
+            touch-action: pan-y;
         }
 
         .app {
-            width: var(--app-w);
-            height: var(--app-h);
-            border-radius: 18px;
-            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
             position: relative;
+            overflow: hidden;
             background:
                 radial-gradient(38% 38% at 78% 13%, rgba(115, 130, 255, 0.22), transparent 62%),
                 linear-gradient(180deg, #162734 0%, #0f1b24 100%);
-        }
-
-        @media (max-width: 414px) {
-            .app {
-                width: 100vw;
-                height: 100svh;
-                border-radius: 0;
-            }
         }
 
         .topbar {
@@ -217,15 +203,13 @@
 
         .fan-card {
             position: absolute;
-            width: min(85px, 9.5vw);
-            height: min(132px, 14.7vw);
+            width: 85px;
+            height: 132px;
             left: 50%;
             bottom: 0;
-            margin-left: calc(min(85px, 9.5vw) / -2);
+            margin-left: -42.5px;
             transform-origin: center 33.5vh;
             pointer-events: none;
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: crisp-edges;
         }
 
         .fan-card img {
@@ -430,6 +414,12 @@
     </div>
 
     <script>
+        // Telegram WebApp initialization
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+        }
+
         const fanContainer = document.getElementById('fanContainer');
         const centerCard = document.getElementById('centerCard');
         const ctaBtn = document.getElementById('openBtn');
@@ -739,9 +729,20 @@
         });
         
         function goBack() {
-            window.history.back();
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.close();
+            } else {
+                window.history.back();
+            }
         }
         
+        // Initialize on load
+        window.addEventListener('load', () => {
+            createFan();
+            updateFan(currentRotation);
+        });
+        
+        // Also initialize immediately
         createFan();
         updateFan(currentRotation);
     </script>

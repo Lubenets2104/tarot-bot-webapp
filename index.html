@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yes or No - Tarot Card Reading</title>
+    <style>
+        :root { 
+            --app-w: 414px; 
+            --app-h: 896px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .app {
+            width: var(--app-w);
+            height: var(--app-h);
+            border-radius: 18px;
+            overflow: hidden;
+            position: relative;
+            background:
+                radial-gradient(38% 38% at 78% 13%, rgba(115, 130, 255, 0.22), transparent 62%),
+                linear-gradient(180deg, #162734 0%, #0f1b24 100%);
+        }
+
+        @media (max-width: 414px) {
+            .app {
+                width: 100vw;
+                height: 100svh;
+                border-radius: 0;
+            }
+        }
+
+        .topbar {
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .icon-back {
+            position: absolute;
+            left: 16px;
+            top: 16px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .topbar h1 {
+            font-family: Georgia, serif;
+            font-weight: 700;
+            font-size: 24px;
+            color: #fff;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .center-card {
+            width: 120px;
+            height: 185px;
+            margin: 8px auto 0;
+            position: relative;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            perspective: 1000px;
+        }
+        
+        .app.picked .center-card {
+            width: 200px;
+            height: 308px;
+            margin-top: 100px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+
+        .center-card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-rect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        
+        .card-front {
+            background:
+                linear-gradient(#142c34, #142c34) padding-box,
+                conic-gradient(from 145deg at 50% 50%,
+                    #66e8d1 0deg, #6fd9ff 110deg, #9aa2ff 170deg, #c688ff 270deg, #66e8d1 360deg
+                ) border-box;
+            border: 2.5px solid transparent;
+            box-shadow:
+                0 0 0 1px rgba(248, 252, 255, 0.3) inset,
+                0 10px 24px rgba(20, 30, 50, 0.35);
+            transition: all 0.35s ease;
+            z-index: 2;
+        }
+
+        .center-card .card-front.selected {
+            background:
+                url("images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png") center/cover no-repeat,
+                linear-gradient(#142c34, #142c34) padding-box;
+            border: 6px solid #F2F5FA;
+            border-radius: 16px;
+            box-shadow:
+                0 0 0 1px rgba(248, 252, 255, 0.35) inset,
+                0 12px 30px rgba(0, 0, 0, 0.65);
+        }
+
+        .card-back {
+            background: transparent;
+            transform: rotateY(180deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .card-back img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .card-name {
+            text-align: center;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 16px;
+            opacity: 0;
+            transition: opacity 0.5s ease 0.3s;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .app.picked.flipped .card-name {
+            opacity: 1;
+        }
+
+        .glow {
+            position: absolute;
+            inset: -40px;
+            background: radial-gradient(180px 180px at 80% 10%, rgba(110, 120, 255, 0.35), transparent 60%);
+            filter: blur(16px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hint {
+            text-align: center;
+            color: #b7c7d5;
+            line-height: 1.35;
+            font-size: 14px;
+            margin: 12px 16px 0;
+            transition: opacity 0.35s ease;
+        }
+
+        .fan-wrapper {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 360px;
+            overflow: visible;
+            pointer-events: none;
+        }
+
+        .fan-container {
+            position: absolute;
+            width: 1600px;
+            height: 600px;
+            left: 50%;
+            bottom: -280px;
+            transform: translateX(-50%);
+            pointer-events: auto;
+            cursor: grab;
+        }
+
+        .fan-container:active {
+            cursor: grabbing;
+        }
+
+        .fan-card {
+            position: absolute;
+            width: 100px;
+            height: 155px;
+            left: 50%;
+            bottom: 0;
+            margin-left: -50px;
+            transform-origin: center 360px;
+            pointer-events: none;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+
+        .fan-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2.5px solid #E8EDF2;
+            box-shadow: 
+                0 2px 6px rgba(0, 0, 0, 0.4),
+                0 4px 12px rgba(0, 0, 0, 0.3);
+            background: #1a2a38;
+        }
+
+        .fan-edge-indicator {
+            position: absolute;
+            width: 20px;
+            height: 100%;
+            top: 0;
+            background: linear-gradient(90deg, rgba(22, 39, 52, 0) 0%, rgba(22, 39, 52, 0.8) 100%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .fan-edge-indicator.left {
+            left: 0;
+            background: linear-gradient(270deg, rgba(22, 39, 52, 0) 0%, rgba(22, 39, 52, 0.8) 100%);
+        }
+
+        .fan-edge-indicator.right {
+            right: 0;
+        }
+
+        .fan-edge-indicator.visible {
+            opacity: 1;
+        }
+
+        .choose {
+            position: absolute;
+            left: 50%;
+            bottom: 10px;
+            transform: translateX(-50%);
+            text-align: center;
+            color: rgba(183, 199, 213, 0.9);
+            font-size: 13px;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+            z-index: 10;
+        }
+
+        .choose-arrow {
+            display: none;
+        }
+        
+        .curved-arrow {
+            position: absolute;
+            left: 50%;
+            bottom: 28px;
+            transform: translateX(-50%);
+            width: 240px;
+            height: 30px;
+            pointer-events: none;
+            z-index: 9;
+        }
+        
+        .curved-arrow svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+        
+        .curved-arrow path {
+            fill: none;
+            stroke: rgba(183, 199, 213, 0.6);
+            stroke-width: 1.5;
+            stroke-dasharray: 4, 4;
+            stroke-linecap: round;
+        }
+        
+        .curved-arrow .arrow-head {
+            fill: rgba(183, 199, 213, 0.6);
+        }
+
+        .app.picked .hint,
+        .app.picked .choose,
+        .app.picked .curved-arrow,
+        .app.picked .fan-wrapper {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .cta {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, 14px);
+            bottom: 30px;
+            padding: 16px 32px;
+            background: linear-gradient(90deg, #1ad4c6 0%, #2fe4a7 100%);
+            color: #fff;
+            border: 0;
+            border-radius: 28px;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
+            cursor: pointer;
+        }
+
+        .cta.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, 0);
+        }
+
+        .app.picked.flipped .cta {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .result-btn {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, 14px);
+            bottom: 30px;
+            padding: 16px 32px;
+            background: linear-gradient(90deg, #1ad4c6 0%, #2fe4a7 100%);
+            color: #fff;
+            border: 0;
+            border-radius: 28px;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease 0.8s, transform 0.3s ease 0.8s;
+            cursor: pointer;
+        }
+
+        .result-btn.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, 0);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="topbar">
+            <svg class="icon-back" onclick="goBack()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+            </svg>
+            <h1>Yes or no</h1>
+        </header>
+
+        <div class="center-card" id="centerCard">
+            <div class="glow"></div>
+            <div class="card-inner">
+                <div class="card-rect card-front"></div>
+                <div class="card-rect card-back">
+                    <img id="tarotImage" src="" alt="Tarot Card">
+                </div>
+            </div>
+        </div>
+
+        <div class="card-name" id="cardName"></div>
+
+        <p class="hint">
+            Ask a question that can be answered yes or no, and<br>
+            then draw a card.
+        </p>
+
+        <div class="fan-wrapper">
+            <div class="fan-container" id="fanContainer"></div>
+            <div class="fan-edge-indicator left" id="leftEdge"></div>
+            <div class="fan-edge-indicator right" id="rightEdge"></div>
+        </div>
+
+        <div class="curved-arrow">
+            <svg viewBox="0 0 240 30">
+                <defs>
+                    <marker id="arrowhead-left" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+                        <polygon points="8 0, 8 6, 0 3" class="arrow-head" />
+                    </marker>
+                    <marker id="arrowhead-right" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                        <polygon points="0 0, 8 3, 0 6" class="arrow-head" />
+                    </marker>
+                </defs>
+                <path d="M 15 15 Q 120 0 225 15" marker-start="url(#arrowhead-left)" marker-end="url(#arrowhead-right)" />
+            </svg>
+        </div>
+
+        <div class="choose">
+            <img class="choose-arrow" src="images/arrow-choose-f075370c9171d3b9e1804a88a536bbc1.png" alt="">
+            <div>Choose the card</div>
+        </div>
+
+        <button class="cta" id="openBtn">Open the card</button>
+        <button class="result-btn" id="resultBtn">Get Result</button>
+    </div>
+
+    <script>
+        const fanContainer = document.getElementById('fanContainer');
+        const centerCard = document.getElementById('centerCard');
+        const ctaBtn = document.getElementById('openBtn');
+        const resultBtn = document.getElementById('resultBtn');
+        const app = document.querySelector('.app');
+        const leftEdge = document.getElementById('leftEdge');
+        const rightEdge = document.getElementById('rightEdge');
+        const cardNameEl = document.getElementById('cardName');
+        
+        const CARDS_COUNT = 78;
+        const TOTAL_ANGLE = 360;
+        const CARD_IMAGE = 'images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png';
+        
+        // Новые карты с правильными названиями
+        const TAROT_CARDS = [
+            'Ace of Cups.png', 'Ace of Pentacles.png', 'Ace of Swords.png', 'Ace of Wands.png',
+            'Death.png', 'Eight of Cups.png', 'Eight of Pentacles.png', 'Eight of Swords.png',
+            'Eight of Wands.png', 'Five of Cups.png', 'Five of Pentacles.png', 'Five of Swords.png',
+            'Five of Wands.png', 'Four of Cups.png', 'Four of Pentacles.png', 'Four of Swords.png',
+            'Four of Wands.png', 'Judgement.png', 'Justice.png', 'King of Cups.png',
+            'King of Pentacles.png', 'King of Swords.png', 'King of Wands.png', 'Knight of Cups.png',
+            'Knight of Pentacles.png', 'Knight of Swords.png', 'Knight of Wands.png', 'Nine of Cups.png',
+            'Nine of Pentacles.png', 'Nine of Swords.png', 'Nine of Wands.png', 'Page of Cups.png',
+            'Page of Pentacles.png', 'Page of Swords.png', 'Page of Wands.png', 'Queen of Cups.png',
+            'Queen of Pentacles.png', 'Queen of Swords.png', 'Queen of Wands.png', 'Seven of Cups.png',
+            'Seven of Pentacles.png', 'Seven of Swords.png', 'Seven of Wands.png', 'Six of Cups.png',
+            'Six of Pentacles.png', 'Six of Swords.png', 'Six of Wands.png', 'Strength.png',
+            'Temperance.png', 'Ten of Cups.png', 'Ten of Pentacles.png', 'Ten of Swords.png',
+            'Ten of Wands.png', 'The Chariot.png', 'The Devil.png', 'The Emperor.png',
+            'The Empress.png', 'The Fool.png', 'The Hanged Man.png', 'The Hermit.png',
+            'The Hierophant.png', 'The High Priestess.png', 'The Lovers.png', 'The Magician.png',
+            'The Moon.png', 'The Star.png', 'The Sun.png', 'The Tower.png',
+            'The World.png', 'Three of Cups.png', 'Three of Pentacles.png', 'Three of Swords.png',
+            'Three of Wands.png', 'Two of Cups.png', 'Two of Pentacles.png', 'Two of Swords.png',
+            'Two of Wands.png', 'Wheel of Fortune.png'
+        ];
+        
+        let currentRotation = 0;
+        let isDragging = false;
+        let dragDistance = 0;
+        let startX = 0;
+        let lastRotation = 0;
+        let animationFrame = null;
+        let selectedCard = null;
+        
+        function createFan() {
+            fanContainer.innerHTML = '';
+            const angleStep = TOTAL_ANGLE / (CARDS_COUNT - 1);
+            
+            for (let i = 0; i < CARDS_COUNT; i++) {
+                const card = document.createElement('div');
+                card.className = 'fan-card';
+                card.dataset.index = i;
+                
+                const img = document.createElement('img');
+                img.src = CARD_IMAGE;
+                img.alt = 'Card';
+                img.draggable = false;
+                
+                card.appendChild(img);
+                fanContainer.appendChild(card);
+                
+                const angle = -TOTAL_ANGLE/2 + i * angleStep;
+                card.style.transform = `rotate(${angle}deg) translateY(-360px)`;
+                
+                card.style.zIndex = i;
+            }
+        }
+        
+        function updateFan(rotation) {
+            const cards = fanContainer.querySelectorAll('.fan-card');
+            const angleStep = TOTAL_ANGLE / (CARDS_COUNT - 1);
+            
+            cards.forEach((card, i) => {
+                const baseAngle = -TOTAL_ANGLE/2 + i * angleStep;
+                const angle = baseAngle + rotation;
+                card.style.transform = `rotate(${angle}deg) translateY(-360px)`;
+                
+                if (Math.abs(angle) > 90) {
+                    card.style.opacity = '0';
+                    card.style.pointerEvents = 'none';
+                } else {
+                    card.style.opacity = '1';
+                    card.style.pointerEvents = 'none';
+                }
+                
+                const normalizedAngle = angle + 90;
+                card.style.zIndex = Math.floor(normalizedAngle);
+            });
+            
+            updateEdgeIndicators(rotation);
+        }
+        
+        function updateEdgeIndicators(rotation) {
+            const maxLeftRotation = 180;
+            const maxRightRotation = -180;
+            
+            if (rotation >= maxLeftRotation - 5) {
+                leftEdge.classList.add('visible');
+            } else {
+                leftEdge.classList.remove('visible');
+            }
+            
+            if (rotation <= maxRightRotation + 5) {
+                rightEdge.classList.add('visible');
+            } else {
+                rightEdge.classList.remove('visible');
+            }
+        }
+        
+        fanContainer.addEventListener('mousedown', startDrag);
+        fanContainer.addEventListener('touchstart', startDrag, {passive: false});
+        
+        function startDrag(e) {
+            e.preventDefault();
+            isDragging = true;
+            dragDistance = 0;
+            startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+            lastRotation = currentRotation;
+            fanContainer.style.cursor = 'grabbing';
+            
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
+            }
+        }
+        
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('touchmove', drag, {passive: false});
+        
+        function drag(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            
+            const currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+            const deltaX = currentX - startX;
+            dragDistance = Math.abs(deltaX);
+            
+            currentRotation = lastRotation + (deltaX * 0.15);
+            
+            const maxLeft = 180;
+            const maxRight = -180;
+            
+            if (currentRotation > maxLeft) {
+                const excess = currentRotation - maxLeft;
+                currentRotation = maxLeft + excess * 0.3;
+            } else if (currentRotation < maxRight) {
+                const excess = currentRotation - maxRight;
+                currentRotation = maxRight + excess * 0.3;
+            }
+            
+            updateFan(currentRotation);
+        }
+        
+        document.addEventListener('mouseup', endDrag);
+        document.addEventListener('touchend', endDrag);
+        document.addEventListener('mouseleave', endDrag);
+        
+        function endDrag(e) {
+            if (!isDragging) return;
+            
+            const wasDragging = dragDistance > 10;
+            isDragging = false;
+            fanContainer.style.cursor = 'grab';
+            
+            springBack();
+            
+            if (!wasDragging && e.type === 'mouseup') {
+                const clickX = e.clientX;
+                const clickY = e.clientY;
+                
+                const cards = fanContainer.querySelectorAll('.fan-card');
+                let clickedCard = null;
+                let maxZIndex = -Infinity;
+                
+                cards.forEach(card => {
+                    if (card.style.opacity === '0') return;
+                    
+                    const rect = card.getBoundingClientRect();
+                    
+                    if (clickX >= rect.left && clickX <= rect.right && 
+                        clickY >= rect.top && clickY <= rect.bottom) {
+                        
+                        const cardZIndex = parseInt(card.style.zIndex) || 0;
+                        
+                        if (cardZIndex > maxZIndex) {
+                            maxZIndex = cardZIndex;
+                            clickedCard = card;
+                        }
+                    }
+                });
+                
+                if (clickedCard) {
+                    selectCard(clickedCard);
+                }
+            }
+        }
+        
+        function springBack() {
+            const maxLeft = 180;
+            const maxRight = -180;
+            
+            if (currentRotation > maxLeft || currentRotation < maxRight) {
+                const targetRotation = currentRotation > maxLeft ? maxLeft : maxRight;
+                
+                const animate = () => {
+                    const diff = targetRotation - currentRotation;
+                    
+                    if (Math.abs(diff) > 0.5) {
+                        currentRotation += diff * 0.15;
+                        updateFan(currentRotation);
+                        animationFrame = requestAnimationFrame(animate);
+                    } else {
+                        currentRotation = targetRotation;
+                        updateFan(currentRotation);
+                        lastRotation = currentRotation;
+                        if (animationFrame) {
+                            cancelAnimationFrame(animationFrame);
+                            animationFrame = null;
+                        }
+                    }
+                };
+                
+                animate();
+            } else {
+                lastRotation = currentRotation;
+            }
+        }
+        
+        function selectCard(card) {
+            const rect = card.getBoundingClientRect();
+            const targetRect = centerCard.getBoundingClientRect();
+            
+            const computedStyle = getComputedStyle(card);
+            const transform = computedStyle.transform;
+            const matrix = new DOMMatrix(transform);
+            const angle = Math.atan2(matrix.b, matrix.a) * (180 / Math.PI);
+            
+            card.style.opacity = '0';
+            
+            const copy = document.createElement('div');
+            copy.className = 'fan-card';
+            copy.innerHTML = card.innerHTML;
+            copy.style.position = 'fixed';
+            copy.style.left = rect.left + 'px';
+            copy.style.top = rect.top + 'px';
+            copy.style.width = rect.width + 'px';
+            copy.style.height = rect.height + 'px';
+            copy.style.margin = '0';
+            copy.style.transform = `rotate(${angle}deg)`;
+            copy.style.transformOrigin = 'center center';
+            copy.style.zIndex = '3000';
+            copy.style.pointerEvents = 'none';
+            
+            document.body.appendChild(copy);
+            copy.offsetHeight;
+            
+            requestAnimationFrame(() => {
+                copy.style.transition = 'transform 200ms ease-out';
+                copy.style.transform = `rotate(${angle}deg) translateY(-70px) scale(1.08)`;
+                
+                setTimeout(() => {
+                    copy.style.transition = 'all 1000ms cubic-bezier(0.4, 0, 0.2, 1)';
+                    copy.style.left = targetRect.left + 'px';
+                    copy.style.top = targetRect.top + 'px';
+                    copy.style.width = targetRect.width + 'px';
+                    copy.style.height = targetRect.height + 'px';
+                    copy.style.transform = 'rotate(0deg) translateY(0) scale(1)';
+                }, 200);
+                
+                setTimeout(() => {
+                    centerCard.querySelector('.card-front').classList.add('selected');
+                    app.classList.add('picked');
+                    
+                    setTimeout(() => {
+                        copy.style.opacity = '0';
+                        copy.style.transition = 'opacity 300ms';
+                        setTimeout(() => copy.remove(), 300);
+                    }, 100);
+                    
+                    setTimeout(() => ctaBtn.classList.add('show'), 200);
+                }, 1200);
+            });
+        }
+        
+        // Переворот карты
+        ctaBtn.addEventListener('click', () => {
+            // Выбираем случайную карту
+            selectedCard = TAROT_CARDS[Math.floor(Math.random() * TAROT_CARDS.length)];
+            const tarotImage = document.getElementById('tarotImage');
+            tarotImage.src = 'tarot_correct_names/' + selectedCard;
+            
+            // Извлекаем название карты из имени файла (без .png)
+            const cardName = selectedCard.replace('.png', '');
+            cardNameEl.textContent = cardName;
+            
+            // Скрываем кнопку Open
+            ctaBtn.classList.remove('show');
+            
+            // Переворачиваем карту
+            setTimeout(() => {
+                centerCard.classList.add('flipped');
+                app.classList.add('flipped');
+                
+                // Показываем кнопку Get Result
+                setTimeout(() => {
+                    resultBtn.classList.add('show');
+                }, 300);
+            }, 300);
+        });
+        
+        // Обработчик кнопки Get Result
+        resultBtn.addEventListener('click', () => {
+            alert('Here will be the result for: ' + selectedCard.replace('.png', ''));
+            // Здесь можно добавить логику для показа результата
+        });
+        
+        function goBack() {
+            window.history.back();
+        }
+        
+        createFan();
+        updateFan(currentRotation);
+    </script>
+</body>
+</html>

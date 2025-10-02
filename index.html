@@ -590,9 +590,10 @@
             
             springBack();
             
-            if (!wasDragging && e.type === 'mouseup') {
-                const clickX = e.clientX;
-                const clickY = e.clientY;
+            // ИСПРАВЛЕНО: Теперь работает и на телефоне (touchend) и на компе (mouseup)
+            if (!wasDragging && (e.type === 'mouseup' || e.type === 'touchend')) {
+                const clickX = e.type === 'mouseup' ? e.clientX : e.changedTouches[0].clientX;
+                const clickY = e.type === 'mouseup' ? e.clientY : e.changedTouches[0].clientY;
                 
                 const cards = fanContainer.querySelectorAll('.fan-card');
                 let clickedCard = null;

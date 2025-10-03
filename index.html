@@ -406,7 +406,10 @@
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
-        tg.BackButton.hide();
+
+        // Включаем MainButton для отправки данных
+        tg.MainButton.setText('GET RESULT');
+        tg.MainButton.color = '#1ad4c6';
 
         const fanContainer = document.getElementById('fanContainer');
         const centerCard = document.getElementById('centerCard');
@@ -422,26 +425,26 @@
         const CARD_IMAGE = 'images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png';
         
         const TAROT_CARDS = [
-            'Ace of Cups.png', 'Ace of Pentacles.png', 'Ace of Swords.png', 'Ace of Wands.png',
-            'Death.png', 'Eight of Cups.png', 'Eight of Pentacles.png', 'Eight of Swords.png',
-            'Eight of Wands.png', 'Five of Cups.png', 'Five of Pentacles.png', 'Five of Swords.png',
-            'Five of Wands.png', 'Four of Cups.png', 'Four of Pentacles.png', 'Four of Swords.png',
-            'Four of Wands.png', 'Judgement.png', 'Justice.png', 'King of Cups.png',
-            'King of Pentacles.png', 'King of Swords.png', 'King of Wands.png', 'Knight of Cups.png',
-            'Knight of Pentacles.png', 'Knight of Swords.png', 'Knight of Wands.png', 'Nine of Cups.png',
-            'Nine of Pentacles.png', 'Nine of Swords.png', 'Nine of Wands.png', 'Page of Cups.png',
-            'Page of Pentacles.png', 'Page of Swords.png', 'Page of Wands.png', 'Queen of Cups.png',
-            'Queen of Pentacles.png', 'Queen of Swords.png', 'Queen of Wands.png', 'Seven of Cups.png',
-            'Seven of Pentacles.png', 'Seven of Swords.png', 'Seven of Wands.png', 'Six of Cups.png',
-            'Six of Pentacles.png', 'Six of Swords.png', 'Six of Wands.png', 'Strength.png',
-            'Temperance.png', 'Ten of Cups.png', 'Ten of Pentacles.png', 'Ten of Swords.png',
-            'Ten of Wands.png', 'The Chariot.png', 'The Devil.png', 'The Emperor.png',
-            'The Empress.png', 'The Fool.png', 'The Hanged Man.png', 'The Hermit.png',
-            'The Hierophant.png', 'The High Priestess.png', 'The Lovers.png', 'The Magician.png',
-            'The Moon.png', 'The Star.png', 'The Sun.png', 'The Tower.png',
-            'The World.png', 'Three of Cups.png', 'Three of Pentacles.png', 'Three of Swords.png',
-            'Three of Wands.png', 'Two of Cups.png', 'Two of Pentacles.png', 'Two of Swords.png',
-            'Two of Wands.png', 'Wheel of Fortune.png'
+            'Ace of Cups', 'Ace of Pentacles', 'Ace of Swords', 'Ace of Wands',
+            'Death', 'Eight of Cups', 'Eight of Pentacles', 'Eight of Swords',
+            'Eight of Wands', 'Five of Cups', 'Five of Pentacles', 'Five of Swords',
+            'Five of Wands', 'Four of Cups', 'Four of Pentacles', 'Four of Swords',
+            'Four of Wands', 'Judgement', 'Justice', 'King of Cups',
+            'King of Pentacles', 'King of Swords', 'King of Wands', 'Knight of Cups',
+            'Knight of Pentacles', 'Knight of Swords', 'Knight of Wands', 'Nine of Cups',
+            'Nine of Pentacles', 'Nine of Swords', 'Nine of Wands', 'Page of Cups',
+            'Page of Pentacles', 'Page of Swords', 'Page of Wands', 'Queen of Cups',
+            'Queen of Pentacles', 'Queen of Swords', 'Queen of Wands', 'Seven of Cups',
+            'Seven of Pentacles', 'Seven of Swords', 'Seven of Wands', 'Six of Cups',
+            'Six of Pentacles', 'Six of Swords', 'Six of Wands', 'Strength',
+            'Temperance', 'Ten of Cups', 'Ten of Pentacles', 'Ten of Swords',
+            'Ten of Wands', 'The Chariot', 'The Devil', 'The Emperor',
+            'The Empress', 'The Fool', 'The Hanged Man', 'The Hermit',
+            'The Hierophant', 'The High Priestess', 'The Lovers', 'The Magician',
+            'The Moon', 'The Star', 'The Sun', 'The Tower',
+            'The World', 'Three of Cups', 'Three of Pentacles', 'Three of Swords',
+            'Three of Wands', 'Two of Cups', 'Two of Pentacles', 'Two of Swords',
+            'Two of Wands', 'Wheel of Fortune'
         ];
         
         let currentRotation = 0;
@@ -694,11 +697,12 @@
         
         ctaBtn.addEventListener('click', () => {
             selectedCard = TAROT_CARDS[Math.floor(Math.random() * TAROT_CARDS.length)];
-            const tarotImage = document.getElementById('tarotImage');
-            tarotImage.src = 'tarot_correct_names/' + selectedCard;
             
-            const cardName = selectedCard.replace('.png', '');
-            cardNameEl.textContent = cardName;
+            const tarotImage = document.getElementById('tarotImage');
+            const imagePath = `tarot_correct_names/${selectedCard}.png`;
+            tarotImage.src = imagePath;
+            
+            cardNameEl.textContent = selectedCard;
             
             ctaBtn.classList.remove('show');
             
@@ -707,38 +711,34 @@
                 app.classList.add('flipped');
                 
                 setTimeout(() => {
-                    resultBtn.classList.add('show');
+                    // Показываем Telegram MainButton вместо обычной кнопки
+                    tg.MainButton.show();
+                    tg.MainButton.enable();
                 }, 300);
             }, 300);
         });
         
-        // Обработчик кнопки Get Result - используем правильный метод Telegram WebApp API
-        resultBtn.addEventListener('click', () => {
+        // Обработчик нажатия на MainButton Telegram
+        tg.MainButton.onClick(() => {
             if (!selectedCard) {
+                tg.showAlert('Please select a card first');
                 return;
             }
             
-            const cardName = selectedCard.replace('.png', '');
+            console.log('Sending card:', selectedCard);
             
-            console.log('Sending card:', cardName);
-            
-            // Используем правильный метод sendData
             const data = JSON.stringify({
-                card: cardName,
+                card: selectedCard,
                 type: 'yes_no'
             });
             
-            // Отправляем данные и закрываем WebApp
+            console.log('Data:', data);
+            
+            // Отправляем данные боту
             tg.sendData(data);
         });
         
-        // Initialize on load
-        window.addEventListener('load', () => {
-            createFan();
-            updateFan(currentRotation);
-        });
-        
-        // Also initialize immediately
+        // Initialize
         createFan();
         updateFan(currentRotation);
     </script>

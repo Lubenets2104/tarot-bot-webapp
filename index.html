@@ -57,22 +57,6 @@
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        .debug {
-            position: fixed;
-            top: 60px;
-            left: 10px;
-            background: rgba(0,0,0,0.8);
-            color: #0f0;
-            padding: 10px;
-            font-size: 10px;
-            max-width: 90%;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 10000;
-            font-family: monospace;
-            border-radius: 5px;
-        }
-
         .center-card {
             width: 120px;
             height: 185px;
@@ -365,8 +349,6 @@
     </style>
 </head>
 <body>
-    <div class="debug" id="debug"></div>
-    
     <div class="app">
         <header class="topbar">
             <h1>Yes or no</h1>
@@ -420,35 +402,9 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // Debug logger
-        const debugEl = document.getElementById('debug');
-        function log(msg) {
-            console.log(msg);
-            debugEl.innerHTML += msg + '<br>';
-            debugEl.scrollTop = debugEl.scrollHeight;
-        }
-
-        log('Script started');
-
-        // Telegram WebApp initialization
-        if (!window.Telegram || !window.Telegram.WebApp) {
-            log('ERROR: Telegram WebApp not available!');
-        } else {
-            log('Telegram WebApp found');
-        }
-
         const tg = window.Telegram.WebApp;
-        
-        log('Calling tg.ready()...');
         tg.ready();
-        log('tg.ready() called');
-        
-        log('Calling tg.expand()...');
         tg.expand();
-        log('tg.expand() called');
-
-        log('Platform: ' + tg.platform);
-        log('Version: ' + tg.version);
 
         const fanContainer = document.getElementById('fanContainer');
         const centerCard = document.getElementById('centerCard');
@@ -513,7 +469,6 @@
                 
                 const angle = -TOTAL_ANGLE/2 + i * angleStep;
                 card.style.transform = `rotate(${angle}deg) translateY(-33.5vh)`;
-                
                 card.style.zIndex = i;
             }
         }
@@ -735,9 +690,7 @@
         }
         
         ctaBtn.addEventListener('click', () => {
-            log('Open card clicked');
             selectedCard = TAROT_CARDS[Math.floor(Math.random() * TAROT_CARDS.length)];
-            log('Selected card: ' + selectedCard);
             
             const tarotImage = document.getElementById('tarotImage');
             const imagePath = `tarot_correct_names/${selectedCard}.png`;
@@ -753,50 +706,25 @@
                 
                 setTimeout(() => {
                     resultBtn.classList.add('show');
-                    log('Result button shown');
                 }, 300);
             }, 300);
         });
         
-        // Обработчик кнопки Get Result
         resultBtn.addEventListener('click', () => {
-            log('Result button clicked!');
-            
             if (!selectedCard) {
-                log('ERROR: No card selected');
-                alert('Please select a card first');
                 return;
             }
-            
-            log('Selected card: ' + selectedCard);
             
             const data = JSON.stringify({
                 card: selectedCard,
                 type: 'yes_no'
             });
             
-            log('Data to send: ' + data);
-            
-            try {
-                log('Attempting to send data...');
-                tg.sendData(data);
-                log('sendData() called successfully');
-            } catch (error) {
-                log('ERROR sending data: ' + error.message);
-                alert('Error: ' + error.message);
-            }
+            tg.sendData(data);
         });
         
-        // Initialize
-        log('Creating fan...');
         createFan();
         updateFan(currentRotation);
-        log('Fan created');
-        
-        // Hide debug after 10 seconds
-        setTimeout(() => {
-            debugEl.style.display = 'none';
-        }, 10000);
     </script>
 </body>
 </html>

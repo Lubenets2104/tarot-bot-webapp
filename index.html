@@ -57,8 +57,6 @@
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        
-
         .center-card {
             width: 120px;
             height: 185px;
@@ -351,8 +349,6 @@
     </style>
 </head>
 <body>
-    
-    
     <div class="app">
         <header class="topbar">
             <h1>Yes or no</h1>
@@ -406,7 +402,329 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        const fanContainer = document.getElementById('fanContainer');
+        const centerCard = document.getElementById('centerCard');
+        const ctaBtn = document.getElementById('openBtn');
+        const resultBtn = document.getElementById('resultBtn');
+        const app = document.querySelector('.app');
+        const leftEdge = document.getElementById('leftEdge');
+        const rightEdge = document.getElementById('rightEdge');
+        const cardNameEl = document.getElementById('cardName');
         
+        const CARDS_COUNT = 78;
+        const TOTAL_ANGLE = 360;
+        const CARD_IMAGE = 'images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png';
+        
+        const TAROT_CARDS = [
+            'Ace of Cups', 'Ace of Pentacles', 'Ace of Swords', 'Ace of Wands',
+            'Death', 'Eight of Cups', 'Eight of Pentacles', 'Eight of Swords',
+            'Eight of Wands', 'Five of Cups', 'Five of Pentacles', 'Five of Swords',
+            'Five of Wands', 'Four of Cups', 'Four of Pentacles', 'Four of Swords',
+            'Four of Wands', 'Judgement', 'Justice', 'King of Cups',
+            'King of Pentacles', 'King of Swords', 'King of Wands', 'Knight of Cups',
+            'Knight of Pentacles', 'Knight of Swords', 'Knight of Wands', 'Nine of Cups',
+            'Nine of Pentacles', 'Nine of Swords', 'Nine of Wands', 'Page of Cups',
+            'Page of Pentacles', 'Page of Swords', 'Page of Wands', 'Queen of Cups',
+            'Queen of Pentacles', 'Queen of Swords', 'Queen of Wands', 'Seven of Cups',
+            'Seven of Pentacles', 'Seven of Swords', 'Seven of Wands', 'Six of Cups',
+            'Six of Pentacles', 'Six of Swords', 'Six of Wands', 'Strength',
+            'Temperance', 'Ten of Cups', 'Ten of Pentacles', 'Ten of Swords',
+            'Ten of Wands', 'The Chariot', 'The Devil', 'The Emperor',
+            'The Empress', 'The Fool', 'The Hanged Man', 'The Hermit',
+            'The Hierophant', 'The High Priestess', 'The Lovers', 'The Magician',
+            'The Moon', 'The Star', 'The Sun', 'The Tower',
+            'The World', 'Three of Cups', 'Three of Pentacles', 'Three of Swords',
+            'Three of Wands', 'Two of Cups', 'Two of Pentacles', 'Two of Swords',
+            'Two of Wands', 'Wheel of Fortune'
+        ];
+        
+        let currentRotation = 0;
+        let isDragging = false;
+        let dragDistance = 0;
+        let startX = 0;
+        let lastRotation = 0;
+        let animationFrame = null;
+        let selectedCard = null;
+        
+        function createFan() {
+            fanContainer.innerHTML = '';
+            const angleStep = TOTAL_ANGLE / (CARDS_COUNT - 1);
+            
+            for (let i = 0; i < CARDS_COUNT; i++) {
+                const card = document.createElement('div');
+                card.className = 'fan-card';
+                card.dataset.index = i;
+                
+                const img = document.createElement('img');
+                img.src = CARD_IMAGE;
+                img.alt = 'Card';
+                img.draggable = false;
+                
+                card.appendChild(img);
+                fanContainer.appendChild(card);
+                
+                const angle = -TOTAL_ANGLE/2 + i * angleStep;
+                card.style.transform = `rotate(${angle}deg) translateY(-33.5vh)`;
+                card.style.zIndex = i;
+            }
+        }
+        
+        function updateFan(rotation) {
+            const cards = fanContainer.querySelectorAll('.fan-card');
+            const angleStep = TOTAL_ANGLE / (CARDS_COUNT - 1);
+            
+            cards.forEach((card, i) => {
+                const baseAngle = -TOTAL_ANGLE/2 + i * angleStep;
+                const angle = baseAngle + rotation;
+                card.style.transform = `rotate(${angle}deg) translateY(-33.5vh)`;
+                
+                if (Math.abs(angle) > 90) {
+                    card.style.opacity = '0';
+                    card.style.pointerEvents = 'none';
+                } else {
+                    card.style.opacity = '1';
+                    card.style.pointerEvents = 'none';
+                }
+                
+                const normalizedAngle = angle + 90;
+                card.style.zIndex = Math.floor(normalizedAngle);
+            });
+            
+            updateEdgeIndicators(rotation);
+        }
+        
+        function updateEdgeIndicators(rotation) {
+            const maxLeftRotation = 180;
+            const maxRightRotation = -180;
+            
+            if (rotation >= maxLeftRotation - 5) {
+                leftEdge.classList.add('visible');
+            } else {
+                leftEdge.classList.remove('visible');
+            }
+            
+            if (rotation <= maxRightRotation + 5) {
+                rightEdge.classList.add('visible');
+            } else {
+                rightEdge.classList.remove('visible');
+            }
+        }
+        
+        fanContainer.addEventListener('mousedown', startDrag);
+        fanContainer.addEventListener('touchstart', startDrag, {passive: false});
+        
+        function startDrag(e) {
+            e.preventDefault();
+            isDragging = true;
+            dragDistance = 0;
+            startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+            lastRotation = currentRotation;
+            fanContainer.style.cursor = 'grabbing';
+            
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
+            }
+        }
+        
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('touchmove', drag, {passive: false});
+        
+        function drag(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            
+            const currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+            const deltaX = currentX - startX;
+            dragDistance = Math.abs(deltaX);
+            
+            currentRotation = lastRotation + (deltaX * 0.15);
+            
+            const maxLeft = 180;
+            const maxRight = -180;
+            
+            if (currentRotation > maxLeft) {
+                const excess = currentRotation - maxLeft;
+                currentRotation = maxLeft + excess * 0.3;
+            } else if (currentRotation < maxRight) {
+                const excess = currentRotation - maxRight;
+                currentRotation = maxRight + excess * 0.3;
+            }
+            
+            updateFan(currentRotation);
+        }
+        
+        document.addEventListener('mouseup', endDrag);
+        document.addEventListener('touchend', endDrag);
+        document.addEventListener('mouseleave', endDrag);
+        
+        function endDrag(e) {
+            if (!isDragging) return;
+            
+            const wasDragging = dragDistance > 10;
+            isDragging = false;
+            fanContainer.style.cursor = 'grab';
+            
+            springBack();
+            
+            if (!wasDragging && (e.type === 'mouseup' || e.type === 'touchend')) {
+                const clickX = e.type === 'mouseup' ? e.clientX : e.changedTouches[0].clientX;
+                const clickY = e.type === 'mouseup' ? e.clientY : e.changedTouches[0].clientY;
+                
+                const cards = fanContainer.querySelectorAll('.fan-card');
+                let clickedCard = null;
+                let maxZIndex = -Infinity;
+                
+                cards.forEach(card => {
+                    if (card.style.opacity === '0') return;
+                    
+                    const rect = card.getBoundingClientRect();
+                    
+                    if (clickX >= rect.left && clickX <= rect.right && 
+                        clickY >= rect.top && clickY <= rect.bottom) {
+                        
+                        const cardZIndex = parseInt(card.style.zIndex) || 0;
+                        
+                        if (cardZIndex > maxZIndex) {
+                            maxZIndex = cardZIndex;
+                            clickedCard = card;
+                        }
+                    }
+                });
+                
+                if (clickedCard) {
+                    selectCard(clickedCard);
+                }
+            }
+        }
+        
+        function springBack() {
+            const maxLeft = 180;
+            const maxRight = -180;
+            
+            if (currentRotation > maxLeft || currentRotation < maxRight) {
+                const targetRotation = currentRotation > maxLeft ? maxLeft : maxRight;
+                
+                const animate = () => {
+                    const diff = targetRotation - currentRotation;
+                    
+                    if (Math.abs(diff) > 0.5) {
+                        currentRotation += diff * 0.15;
+                        updateFan(currentRotation);
+                        animationFrame = requestAnimationFrame(animate);
+                    } else {
+                        currentRotation = targetRotation;
+                        updateFan(currentRotation);
+                        lastRotation = currentRotation;
+                        if (animationFrame) {
+                            cancelAnimationFrame(animationFrame);
+                            animationFrame = null;
+                        }
+                    }
+                };
+                
+                animate();
+            } else {
+                lastRotation = currentRotation;
+            }
+        }
+        
+        function selectCard(card) {
+            const rect = card.getBoundingClientRect();
+            const targetRect = centerCard.getBoundingClientRect();
+            
+            const computedStyle = getComputedStyle(card);
+            const transform = computedStyle.transform;
+            const matrix = new DOMMatrix(transform);
+            const angle = Math.atan2(matrix.b, matrix.a) * (180 / Math.PI);
+            
+            card.style.opacity = '0';
+            
+            const copy = document.createElement('div');
+            copy.className = 'fan-card';
+            copy.innerHTML = card.innerHTML;
+            copy.style.position = 'fixed';
+            copy.style.left = rect.left + 'px';
+            copy.style.top = rect.top + 'px';
+            copy.style.width = rect.width + 'px';
+            copy.style.height = rect.height + 'px';
+            copy.style.margin = '0';
+            copy.style.transform = `rotate(${angle}deg)`;
+            copy.style.transformOrigin = 'center center';
+            copy.style.zIndex = '3000';
+            copy.style.pointerEvents = 'none';
+            
+            document.body.appendChild(copy);
+            copy.offsetHeight;
+            
+            requestAnimationFrame(() => {
+                copy.style.transition = 'transform 200ms ease-out';
+                copy.style.transform = `rotate(${angle}deg) translateY(-70px) scale(1.08)`;
+                
+                setTimeout(() => {
+                    copy.style.transition = 'all 1000ms cubic-bezier(0.4, 0, 0.2, 1)';
+                    copy.style.left = targetRect.left + 'px';
+                    copy.style.top = targetRect.top + 'px';
+                    copy.style.width = targetRect.width + 'px';
+                    copy.style.height = targetRect.height + 'px';
+                    copy.style.transform = 'rotate(0deg) translateY(0) scale(1)';
+                }, 200);
+                
+                setTimeout(() => {
+                    centerCard.querySelector('.card-front').classList.add('selected');
+                    app.classList.add('picked');
+                    
+                    setTimeout(() => {
+                        copy.style.opacity = '0';
+                        copy.style.transition = 'opacity 300ms';
+                        setTimeout(() => copy.remove(), 300);
+                    }, 100);
+                    
+                    setTimeout(() => ctaBtn.classList.add('show'), 200);
+                }, 1200);
+            });
+        }
+        
+        ctaBtn.addEventListener('click', () => {
+            selectedCard = TAROT_CARDS[Math.floor(Math.random() * TAROT_CARDS.length)];
+            
+            const tarotImage = document.getElementById('tarotImage');
+            const imagePath = `tarot_correct_names/${selectedCard}.png`;
+            tarotImage.src = imagePath;
+            
+            cardNameEl.textContent = selectedCard;
+            
+            ctaBtn.classList.remove('show');
+            
+            setTimeout(() => {
+                centerCard.classList.add('flipped');
+                app.classList.add('flipped');
+                
+                setTimeout(() => {
+                    resultBtn.classList.add('show');
+                }, 300);
+            }, 300);
+        });
+        
+        resultBtn.addEventListener('click', () => {
+            if (!selectedCard) {
+                return;
+            }
+            
+            const data = JSON.stringify({
+                card: selectedCard,
+                type: 'yes_no'
+            });
+            
+            tg.sendData(data);
+        });
+        
+        createFan();
+        updateFan(currentRotation);
     </script>
 </body>
 </html>

@@ -400,14 +400,13 @@
         <button class="result-btn" id="resultBtn">Get Result</button>
     </div>
 
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         // Telegram WebApp initialization
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.ready();
-            window.Telegram.WebApp.expand();
-            // Убираем кнопку "Назад" от Telegram
-            window.Telegram.WebApp.BackButton.hide();
-        }
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        tg.BackButton.hide();
 
         const fanContainer = document.getElementById('fanContainer');
         const centerCard = document.getElementById('centerCard');
@@ -713,7 +712,7 @@
             }, 300);
         });
         
-        // Обработчик кнопки Get Result - отправка данных боту БЕЗ окна подтверждения
+        // Обработчик кнопки Get Result - используем правильный метод Telegram WebApp API
         resultBtn.addEventListener('click', () => {
             if (!selectedCard) {
                 return;
@@ -721,26 +720,17 @@
             
             const cardName = selectedCard.replace('.png', '');
             
-            // Отправляем данные боту через Telegram WebApp API
-            if (window.Telegram && window.Telegram.WebApp) {
-                const data = JSON.stringify({
-                    card: cardName,
-                    type: 'yes_no'
-                });
-                
-                // СРАЗУ отправляем данные и закрываем WebApp (БЕЗ ОКНА!)
-                window.Telegram.WebApp.sendData(data);
-                // WebApp автоматически закроется после sendData
-            }
+            console.log('Sending card:', cardName);
+            
+            // Используем правильный метод sendData
+            const data = JSON.stringify({
+                card: cardName,
+                type: 'yes_no'
+            });
+            
+            // Отправляем данные и закрываем WebApp
+            tg.sendData(data);
         });
-        
-        function goBack() {
-            if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.close();
-            } else {
-                window.history.back();
-            }
-        }
         
         // Initialize on load
         window.addEventListener('load', () => {

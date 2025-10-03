@@ -713,10 +713,9 @@
             }, 300);
         });
         
-        // Обработчик кнопки Get Result - отправка данных боту
+        // Обработчик кнопки Get Result - отправка данных боту БЕЗ окна подтверждения
         resultBtn.addEventListener('click', () => {
             if (!selectedCard) {
-                alert('Please select a card first!');
                 return;
             }
             
@@ -729,11 +728,9 @@
                     type: 'yes_no'
                 });
                 
-                // Отправляем данные и закрываем WebApp
+                // СРАЗУ отправляем данные и закрываем WebApp (БЕЗ ОКНА!)
                 window.Telegram.WebApp.sendData(data);
-            } else {
-                // Для тестирования без Telegram
-                alert('Card selected: ' + cardName + '\n\nIn Telegram bot, you will receive the interpretation!');
+                // WebApp автоматически закроется после sendData
             }
         });
         

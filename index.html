@@ -576,28 +576,45 @@
                 const clickY = e.type === 'mouseup' ? e.clientY : e.changedTouches[0].clientY;
                 
                 const cards = fanContainer.querySelectorAll('.fan-card');
-                let clickedCard = null;
-                let maxZIndex = -Infinity;
+                let bestCard = null;
+                let bestScore = Infinity;
                 
                 cards.forEach(card => {
+                    // Игнорируем скрытые карты
                     if (card.style.opacity === '0') return;
                     
                     const rect = card.getBoundingClientRect();
                     
+                    // Проверяем, попал ли клик в границы карты
                     if (clickX >= rect.left && clickX <= rect.right && 
                         clickY >= rect.top && clickY <= rect.bottom) {
                         
+                        // Вычисляем центр карты
+                        const cardCenterX = rect.left + rect.width / 2;
+                        const cardCenterY = rect.top + rect.height / 2;
+                        
+                        // Расстояние от центра карты до точки клика
+                        const distance = Math.sqrt(
+                            Math.pow(clickX - cardCenterX, 2) + 
+                            Math.pow(clickY - cardCenterY, 2)
+                        );
+                        
+                        // Получаем z-index карты
                         const cardZIndex = parseInt(card.style.zIndex) || 0;
                         
-                        if (cardZIndex > maxZIndex) {
-                            maxZIndex = cardZIndex;
-                            clickedCard = card;
+                        // Комбинированный score: приоритет z-index, но учитываем расстояние
+                        // Карты с более высоким z-index получают бонус
+                        const score = distance - (cardZIndex * 0.5);
+                        
+                        if (score < bestScore) {
+                            bestScore = score;
+                            bestCard = card;
                         }
                     }
                 });
                 
-                if (clickedCard) {
-                    selectCard(clickedCard);
+                if (bestCard) {
+                    selectCard(bestCard);
                 }
             }
         }

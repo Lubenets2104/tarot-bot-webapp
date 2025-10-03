@@ -634,6 +634,11 @@
         }
         
         function selectCard(card) {
+            // 🔥 ВАЖНО: Отключаем возможность выбрать карту повторно
+            if (app.classList.contains('picked')) {
+                return; // Карта уже выбрана, игнорируем повторные клики
+            }
+            
             const rect = card.getBoundingClientRect();
             const targetRect = centerCard.getBoundingClientRect();
             
@@ -677,6 +682,9 @@
                 setTimeout(() => {
                     centerCard.querySelector('.card-front').classList.add('selected');
                     app.classList.add('picked');
+                    
+                    // 🔥 ВАЖНО: Полностью отключаем взаимодействие с веером
+                    fanContainer.style.pointerEvents = 'none';
                     
                     setTimeout(() => {
                         copy.style.opacity = '0';

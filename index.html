@@ -713,8 +713,28 @@
             }, 300);
         });
         
+        // Обработчик кнопки Get Result - отправка данных боту
         resultBtn.addEventListener('click', () => {
-            alert('Here will be the result for: ' + selectedCard.replace('.png', ''));
+            if (!selectedCard) {
+                alert('Please select a card first!');
+                return;
+            }
+            
+            const cardName = selectedCard.replace('.png', '');
+            
+            // Отправляем данные боту через Telegram WebApp API
+            if (window.Telegram && window.Telegram.WebApp) {
+                const data = JSON.stringify({
+                    card: cardName,
+                    type: 'yes_no'
+                });
+                
+                // Отправляем данные и закрываем WebApp
+                window.Telegram.WebApp.sendData(data);
+            } else {
+                // Для тестирования без Telegram
+                alert('Card selected: ' + cardName + '\n\nIn Telegram bot, you will receive the interpretation!');
+            }
         });
         
         function goBack() {

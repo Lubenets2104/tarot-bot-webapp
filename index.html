@@ -573,46 +573,15 @@
             springBack();
             
             if (!wasDragging && (e.type === 'mouseup' || e.type === 'touchend')) {
-                const clickX = e.type === 'mouseup' ? e.clientX : e.changedTouches[0].clientX;
-                const clickY = e.type === 'mouseup' ? e.clientY : e.changedTouches[0].clientY;
+                // 🔥 ПРОСТОЕ И НАДЁЖНОЕ РЕШЕНИЕ: просто берём элемент, на который кликнули!
+                const target = e.target;
                 
-                const cards = fanContainer.querySelectorAll('.fan-card');
-                const candidateCards = [];
+                // Находим родительский элемент .fan-card
+                const clickedCard = target.closest('.fan-card');
                 
-                // Шаг 1: Находим все карты, в границы которых попал клик
-                cards.forEach(card => {
-                    if (card.style.opacity === '0') return;
-                    
-                    const rect = card.getBoundingClientRect();
-                    
-                    if (clickX >= rect.left && clickX <= rect.right && 
-                        clickY >= rect.top && clickY <= rect.bottom) {
-                        
-                        const cardZIndex = parseInt(card.style.zIndex) || 0;
-                        const cardIndex = parseInt(card.dataset.index);
-                        
-                        // Вычисляем центр карты
-                        const centerX = rect.left + rect.width / 2;
-                        const centerY = rect.top + rect.height / 2;
-                        const distanceToCenter = Math.sqrt(
-                            Math.pow(clickX - centerX, 2) + 
-                            Math.pow(clickY - centerY, 2)
-                        );
-                        
-                        candidateCards.push({
-                            card: card,
-                            zIndex: cardZIndex,
-                            index: cardIndex,
-                            distance: distanceToCenter
-                        });
-                    }
-                });
-                
-                // Шаг 2: Среди всех кандидатов выбираем карту с минимальным расстоянием до центра
-                // Это гарантирует, что выберется именно та карта, на которую кликнули
-                if (candidateCards.length > 0) {
-                    candidateCards.sort((a, b) => a.distance - b.distance);
-                    selectCard(candidateCards[0].card);
+                // Если кликнули на карту и она видима - выбираем её
+                if (clickedCard && clickedCard.style.opacity !== '0') {
+                    selectCard(clickedCard);
                 }
             }
         }

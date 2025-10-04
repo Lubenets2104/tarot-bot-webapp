@@ -576,8 +576,8 @@
                 const clickY = e.type === 'mouseup' ? e.clientY : e.changedTouches[0].clientY;
                 
                 const cards = fanContainer.querySelectorAll('.fan-card');
-                let clickedCard = null;
-                let maxZIndex = -Infinity;
+                let bestCard = null;
+                let minDistance = Infinity;
                 
                 cards.forEach(card => {
                     // Игнорируем скрытые карты
@@ -589,19 +589,25 @@
                     if (clickX >= rect.left && clickX <= rect.right && 
                         clickY >= rect.top && clickY <= rect.bottom) {
                         
-                        const cardZIndex = parseInt(card.style.zIndex) || 0;
+                        // 🔥 УЛУЧШЕНО: Вычисляем расстояние от центра карты до точки клика
+                        const cardCenterX = rect.left + rect.width / 2;
+                        const cardCenterY = rect.top + rect.height / 2;
                         
-                        // 🔥 ПРОСТО И НАДЁЖНО: выбираем карту с максимальным z-index
-                        // Это гарантирует, что выберётся карта, которая визуально сверху
-                        if (cardZIndex > maxZIndex) {
-                            maxZIndex = cardZIndex;
-                            clickedCard = card;
+                        const distance = Math.sqrt(
+                            Math.pow(clickX - cardCenterX, 2) + 
+                            Math.pow(clickY - cardCenterY, 2)
+                        );
+                        
+                        // Выбираем карту с минимальным расстоянием (чей центр ближе к клику)
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            bestCard = card;
                         }
                     }
                 });
                 
-                if (clickedCard) {
-                    selectCard(clickedCard);
+                if (bestCard) {
+                    selectCard(bestCard);
                 }
             }
         }

@@ -416,7 +416,7 @@
         const cardNameEl = document.getElementById('cardName');
         
         const CARDS_COUNT = 78;
-        const TOTAL_ANGLE = 648; // 🔥 УВЕЛИЧЕНО В 1.8 РАЗА (360 * 1.8 = 648) - больше расстояние между картами
+        const TOTAL_ANGLE = 360;
         const CARD_IMAGE = 'images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png';
         
         const TAROT_CARDS = [
@@ -578,7 +578,7 @@
                 
                 const cards = fanContainer.querySelectorAll('.fan-card');
                 let clickedCard = null;
-                let maxZIndex = -Infinity;
+                let minDistance = Infinity;
                 
                 cards.forEach(card => {
                     // Игнорируем скрытые карты
@@ -586,17 +586,21 @@
                     
                     const rect = card.getBoundingClientRect();
                     
-                    // Проверяем, попал ли клик в границы карты
-                    if (clickX >= rect.left && clickX <= rect.right && 
-                        clickY >= rect.top && clickY <= rect.bottom) {
-                        
-                        const cardZIndex = parseInt(card.style.zIndex) || 0;
-                        
-                        // 🔥 ПРОСТО И НАДЁЖНО: выбираем карту с максимальным z-index
-                        if (cardZIndex > maxZIndex) {
-                            maxZIndex = cardZIndex;
-                            clickedCard = card;
-                        }
+                    // Вычисляем центр карты
+                    const cardCenterX = rect.left + rect.width / 2;
+                    const cardCenterY = rect.top + rect.height / 2;
+                    
+                    // Вычисляем расстояние от клика до центра карты
+                    const distance = Math.sqrt(
+                        Math.pow(clickX - cardCenterX, 2) + 
+                        Math.pow(clickY - cardCenterY, 2)
+                    );
+                    
+                    // 🔥 ИСПРАВЛЕНО: Выбираем карту, центр которой БЛИЖЕ ВСЕГО к точке клика
+                    // Это решает проблему с перекрывающимися картами
+                    if (distance < minDistance && distance < rect.width) {
+                        minDistance = distance;
+                        clickedCard = card;
                     }
                 });
                 

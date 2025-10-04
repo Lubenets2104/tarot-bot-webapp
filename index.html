@@ -577,7 +577,7 @@
                 
                 const cards = fanContainer.querySelectorAll('.fan-card');
                 let bestCard = null;
-                let minDistance = Infinity;
+                let bestScore = -Infinity; // Чем выше score, тем лучше
                 
                 cards.forEach(card => {
                     // Игнорируем скрытые карты
@@ -589,7 +589,10 @@
                     if (clickX >= rect.left && clickX <= rect.right && 
                         clickY >= rect.top && clickY <= rect.bottom) {
                         
-                        // 🔥 УЛУЧШЕНО: Вычисляем расстояние от центра карты до точки клика
+                        // Z-index - основной приоритет
+                        const cardZIndex = parseInt(card.style.zIndex) || 0;
+                        
+                        // Расстояние от центра карты (нормализованное)
                         const cardCenterX = rect.left + rect.width / 2;
                         const cardCenterY = rect.top + rect.height / 2;
                         
@@ -598,9 +601,14 @@
                             Math.pow(clickY - cardCenterY, 2)
                         );
                         
-                        // Выбираем карту с минимальным расстоянием (чей центр ближе к клику)
-                        if (distance < minDistance) {
-                            minDistance = distance;
+                        // 🔥 ОПТИМАЛЬНАЯ ФОРМУЛА:
+                        // Z-index имеет большой вес (умножаем на 100)
+                        // Расстояние вычитаем (чем ближе, тем лучше)
+                        // Итого: карты с большим z-index приоритетнее, но при равном z-index выбирается ближайшая
+                        const score = (cardZIndex * 100) - distance;
+                        
+                        if (score > bestScore) {
+                            bestScore = score;
                             bestCard = card;
                         }
                     }

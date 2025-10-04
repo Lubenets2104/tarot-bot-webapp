@@ -519,8 +519,18 @@
         fanContainer.addEventListener('mousedown', startDrag);
         fanContainer.addEventListener('touchstart', startDrag, {passive: false});
         
-        // 🔥 ДОБАВЛЯЕМ ОТДЕЛЬНЫЙ ОБРАБОТЧИК КЛИКА
-        fanContainer.addEventListener('click', function(e) {
+        // 🔥 ДОБАВЛЯЕМ ОТДЕЛЬНЫЙ ОБРАБОТЧИК КЛИКА ДЛЯ МЫШИ
+        fanContainer.addEventListener('click', handleCardClick);
+        
+        // 🔥 ДОБАВЛЯЕМ ОБРАБОТЧИК ДЛЯ ТАЧА (ТЕЛЕФОН)
+        fanContainer.addEventListener('touchend', function(e) {
+            // Если был драг - не обрабатываем как клик
+            if (dragDistance > 10) return;
+            
+            handleCardClick(e);
+        }, {passive: false});
+        
+        function handleCardClick(e) {
             console.log('🎯 КЛИК СРАБОТАЛ!');
             
             if (app.classList.contains('picked')) {
@@ -528,8 +538,17 @@
                 return;
             }
             
-            const clickX = e.clientX;
-            const clickY = e.clientY;
+            let clickX, clickY;
+            
+            if (e.type === 'touchend') {
+                // Для touch берем координаты из changedTouches
+                clickX = e.changedTouches[0].clientX;
+                clickY = e.changedTouches[0].clientY;
+            } else {
+                // Для click - из clientX/Y
+                clickX = e.clientX;
+                clickY = e.clientY;
+            }
             
             console.log('👆 Координаты клика:', clickX, clickY);
             
@@ -564,7 +583,7 @@
             } else {
                 console.log('❌ Карта не найдена');
             }
-        });
+        }
         
         function startDrag(e) {
             console.log('🟢 startDrag сработал');

@@ -417,7 +417,7 @@
         const cardNameEl = document.getElementById('cardName');
         
         const CARDS_COUNT = 78;
-        const TOTAL_ANGLE = 360;
+        const TOTAL_ANGLE = 540; // 🔥 УВЕЛИЧЕНО В 1.5 РАЗА (360 * 1.5 = 540)
         const CARD_IMAGE = 'images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png';
         
         const TAROT_CARDS = [
@@ -500,8 +500,8 @@
         }
         
         function updateEdgeIndicators(rotation) {
-            const maxLeftRotation = 180;
-            const maxRightRotation = -180;
+            const maxLeftRotation = TOTAL_ANGLE / 2; // Динамический расчет
+            const maxRightRotation = -TOTAL_ANGLE / 2; // Динамический расчет
             
             if (rotation >= maxLeftRotation - 5) {
                 leftEdge.classList.add('visible');
@@ -613,8 +613,8 @@
             
             currentRotation = lastRotation + (deltaX * 0.15);
             
-            const maxLeft = 180;
-            const maxRight = -180;
+            const maxLeft = TOTAL_ANGLE / 2; // Динамический расчет
+            const maxRight = -TOTAL_ANGLE / 2; // Динамический расчет
             
             if (currentRotation > maxLeft) {
                 const excess = currentRotation - maxLeft;
@@ -665,8 +665,8 @@
         }
         
         function springBack() {
-            const maxLeft = 180;
-            const maxRight = -180;
+            const maxLeft = TOTAL_ANGLE / 2; // Динамический расчет
+            const maxRight = -TOTAL_ANGLE / 2; // Динамический расчет
             
             if (currentRotation > maxLeft || currentRotation < maxRight) {
                 const targetRotation = currentRotation > maxLeft ? maxLeft : maxRight;

@@ -199,7 +199,7 @@
             bottom: 0;
             margin-left: -42.5px;
             transform-origin: center 33.5vh;
-            pointer-events: none;
+            pointer-events: auto;
         }
 
         .fan-card img {
@@ -573,13 +573,16 @@
             springBack();
             
             if (!wasDragging && (e.type === 'mouseup' || e.type === 'touchend')) {
-                // 🔥 ПРОСТОЕ И НАДЁЖНОЕ РЕШЕНИЕ: просто берём элемент, на который кликнули!
-                const target = e.target;
+                const clickX = e.type === 'mouseup' ? e.clientX : e.changedTouches[0].clientX;
+                const clickY = e.type === 'mouseup' ? e.clientY : e.changedTouches[0].clientY;
                 
-                // Находим родительский элемент .fan-card
-                const clickedCard = target.closest('.fan-card');
+                // 🔥 ИСПОЛЬЗУЕМ elementFromPoint - браузер сам найдёт верхний элемент с учётом z-index!
+                const element = document.elementFromPoint(clickX, clickY);
                 
-                // Если кликнули на карту и она видима - выбираем её
+                // Находим родительскую карту
+                const clickedCard = element ? element.closest('.fan-card') : null;
+                
+                // Если нашли карту и она видима - выбираем!
                 if (clickedCard && clickedCard.style.opacity !== '0') {
                     selectCard(clickedCard);
                 }

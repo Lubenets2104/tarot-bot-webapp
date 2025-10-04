@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Near Future - Tarot Card Reading</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: pan-y;
+        }
+
+        .app {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(38% 38% at 78% 13%, rgba(115, 130, 255, 0.22), transparent 62%),
+                linear-gradient(180deg, #162734 0%, #0f1b24 100%);
+        }
+
+        .topbar {
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .topbar h1 {
+            font-family: Georgia, serif;
+            font-weight: 700;
+            font-size: 22px;
+            color: #fff;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 🔥 КОНТЕЙНЕР ДЛЯ 5 КАРТ */
+        .cards-grid {
+            width: 100%;
+            max-width: 400px;
+            margin: 16px auto 0;
+            padding: 0 16px;
+        }
+
+        /* Верхний ряд - 4 карты */
+        .cards-row {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        /* Нижний ряд - 1 карта по центру */
+        .cards-row-single {
+            display: flex;
+            justify-content: center;
+        }
+
+        .card-slot {
+            width: 80px;
+            height: 123px;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .card-slot-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+
+        .card-slot.flipped .card-slot-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        /* Пустой слот */
+        .card-empty {
+            background: linear-gradient(#142c34, #142c34) padding-box,
+                        conic-gradient(from 145deg at 50% 50%,
+                            #66e8d1 0deg, #6fd9ff 110deg, #9aa2ff 170deg, #c688ff 270deg, #66e8d1 360deg
+                        ) border-box;
+            border: 2px solid transparent;
+            box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.2) inset;
+            z-index: 2;
+        }
+
+        /* Задняя сторона карты */
+        .card-back-face {
+            background: url("images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png") center/cover no-repeat;
+            border: 3px solid #F2F5FA;
+            border-radius: 12px;
+            box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.3) inset,
+                        0 8px 20px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+        }
+
+        /* Лицевая сторона карты */
+        .card-front-face {
+            background: transparent;
+            transform: rotateY(180deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .card-front-face img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .hint {
+            text-align: center;
+            color: #b7c7d5;
+            line-height: 1.35;
+            font-size: 13px;
+            margin: 12px 16px 0;
+            transition: opacity 0.35s ease;
+        }
+
+        .fan-wrapper {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            right: 0;
+            height: 28vh;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .fan-container {
+            position: absolute;
+            width: 1600px;
+            height: 56vh;
+            left: 50%;
+            bottom: calc(-56vh + 28vh);
+            transform: translateX(-50%);
+            pointer-events: auto;
+            cursor: grab;
+        }
+
+        .fan-container:active {
+            cursor: grabbing;
+        }
+
+        .fan-card-wrapper {
+            position: absolute;
+            width: 85px;
+            height: 132px;
+            left: 50%;
+            bottom: 0;
+            margin-left: -42.5px;
+            transform-origin: center 33.5vh;
+            pointer-events: auto;
+        }
+
+        .fan-card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* 🔥 КЛИКАБЕЛЬНАЯ ЗОНА - теперь динамически адаптируется! */
+        .card-click-zone {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 35%;
+            cursor: pointer;
+            z-index: 100;
+            transition: width 0.15s ease;
+            /* ⬇️ Раскомментируйте для отладки */
+            /* background: rgba(255, 0, 0, 0.3); */
+        }
+
+        .fan-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2.5px solid #E8EDF2;
+            box-shadow: 
+                0 2px 6px rgba(0, 0, 0, 0.4),
+                0 4px 12px rgba(0, 0, 0, 0.3);
+            background: #1a2a38;
+            pointer-events: none;
+        }
+
+        .fan-edge-indicator {
+            position: absolute;
+            width: 20px;
+            height: 100%;
+            top: 0;
+            background: linear-gradient(90deg, rgba(22, 39, 52, 0) 0%, rgba(22, 39, 52, 0.8) 100%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .fan-edge-indicator.left {
+            left: 0;
+            background: linear-gradient(270deg, rgba(22, 39, 52, 0) 0%, rgba(22, 39, 52, 0.8) 100%);
+        }
+
+        .fan-edge-indicator.right {
+            right: 0;
+        }
+
+        .fan-edge-indicator.visible {
+            opacity: 1;
+        }
+
+        .choose {
+            position: absolute;
+            left: 50%;
+            bottom: 10px;
+            transform: translateX(-50%);
+            text-align: center;
+            color: rgba(183, 199, 213, 0.9);
+            font-size: 13px;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+            z-index: 10;
+        }
+
+        .curved-arrow {
+            position: absolute;
+            left: 50%;
+            bottom: 28px;
+            transform: translateX(-50%);
+            width: 240px;
+            height: 30px;
+            pointer-events: none;
+            z-index: 9;
+        }
+
+        .curved-arrow svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .curved-arrow path {
+            fill: none;
+            stroke: rgba(183, 199, 213, 0.6);
+            stroke-width: 1.5;
+            stroke-dasharray: 4, 4;
+            stroke-linecap: round;
+        }
+
+        .curved-arrow .arrow-head {
+            fill: rgba(183, 199, 213, 0.6);
+        }
+
+        /* 🔥 Скрываем hint и стрелки после выбора всех карт */
+        .app.all-picked .choose,
+        .app.all-picked .hint,
+        .app.all-picked .curved-arrow,
+        .app.all-picked .fan-wrapper {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* 🔥 НОВАЯ КНОПКА "Open cards" */
+        .open-btn {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, 14px);
+            bottom: 30px;
+            padding: 16px 32px;
+            background: linear-gradient(90deg, #1ad4c6 0%, #2fe4a7 100%);
+            color: #fff;
+            border: 0;
+            border-radius: 28px;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
+            cursor: pointer;
+        }
+
+        .open-btn.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, 0);
+        }
+
+        /* Скрываем кнопку Open cards после переворота */
+        .app.flipped .open-btn {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .result-btn {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, 14px);
+            bottom: 30px;
+            padding: 16px 32px;
+            background: linear-gradient(90deg, #1ad4c6 0%, #2fe4a7 100%);
+            color: #fff;
+            border: 0;
+            border-radius: 28px;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease 0.8s, transform 0.3s ease 0.8s;
+            cursor: pointer;
+        }
+
+        .result-btn.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, 0);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="topbar">
+            <h1>Near future</h1>
+        </header>
+
+        <!-- 🔥 5 СЛОТОВ ДЛЯ КАРТ -->
+        <div class="cards-grid">
+            <!-- Верхний ряд: 4 карты -->
+            <div class="cards-row">
+                <div class="card-slot" id="slot-0">
+                    <div class="card-slot-inner">
+                        <div class="card-face card-empty"></div>
+                        <div class="card-face card-front-face">
+                            <img src="" alt="Tarot Card">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-slot" id="slot-1">
+                    <div class="card-slot-inner">
+                        <div class="card-face card-empty"></div>
+                        <div class="card-face card-front-face">
+                            <img src="" alt="Tarot Card">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-slot" id="slot-2">
+                    <div class="card-slot-inner">
+                        <div class="card-face card-empty"></div>
+                        <div class="card-face card-front-face">
+                            <img src="" alt="Tarot Card">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-slot" id="slot-3">
+                    <div class="card-slot-inner">
+                        <div class="card-face card-empty"></div>
+                        <div class="card-face card-front-face">
+                            <img src="" alt="Tarot Card">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Нижний ряд: 1 карта по центру -->
+            <div class="cards-row-single">
+                <div class="card-slot" id="slot-4">
+                    <div class="card-slot-inner">
+                        <div class="card-face card-empty"></div>
+                        <div class="card-face card-front-face">
+                            <img src="" alt="Tarot Card">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="hint">
+            Choose 5 cards to see your near future
+        </p>
+
+        <div class="fan-wrapper">
+            <div class="fan-container" id="fanContainer"></div>
+            <div class="fan-edge-indicator left" id="leftEdge"></div>
+            <div class="fan-edge-indicator right" id="rightEdge"></div>
+        </div>
+
+        <div class="curved-arrow">
+            <svg viewBox="0 0 240 30">
+                <defs>
+                    <marker id="arrowhead-left" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+                        <polygon points="8 0, 8 6, 0 3" class="arrow-head" />
+                    </marker>
+                    <marker id="arrowhead-right" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                        <polygon points="0 0, 8 3, 0 6" class="arrow-head" />
+                    </marker>
+                </defs>
+                <path d="M 15 15 Q 120 0 225 15" marker-start="url(#arrowhead-left)" marker-end="url(#arrowhead-right)" />
+            </svg>
+        </div>
+
+        <div class="choose">
+            <div>Choose the card</div>
+        </div>
+
+        <!-- 🔥 НОВАЯ КНОПКА "Open cards" -->
+        <button class="open-btn" id="openBtn">Open cards</button>
+        <button class="result-btn" id="resultBtn">Get Result</button>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        const fanContainer = document.getElementById('fanContainer');
+        const openBtn = document.getElementById('openBtn');
+        const resultBtn = document.getElementById('resultBtn');
+        const app = document.querySelector('.app');
+        const leftEdge = document.getElementById('leftEdge');
+        const rightEdge = document.getElementById('rightEdge');
+        
+        const CARDS_COUNT = 78;
+        const TOTAL_ANGLE = 540;
+        const CARD_IMAGE = 'images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png';
+        const SLOTS_COUNT = 5;
+        
+        const TAROT_CARDS = [
+            'Ace of Cups', 'Ace of Pentacles', 'Ace of Swords', 'Ace of Wands',
+            'Death', 'Eight of Cups', 'Eight of Pentacles', 'Eight of Swords',
+            'Eight of Wands', 'Five of Cups', 'Five of Pentacles', 'Five of Swords',
+            'Five of Wands', 'Four of Cups', 'Four of Pentacles', 'Four of Swords',
+            'Four of Wands', 'Judgement', 'Justice', 'King of Cups',
+            'King of Pentacles', 'King of Swords', 'King of Wands', 'Knight of Cups',
+            'Knight of Pentacles', 'Knight of Swords', 'Knight of Wands', 'Nine of Cups',
+            'Nine of Pentacles', 'Nine of Swords', 'Nine of Wands', 'Page of Cups',
+            'Page of Pentacles', 'Page of Swords', 'Page of Wands', 'Queen of Cups',
+            'Queen of Pentacles', 'Queen of Swords', 'Queen of Wands', 'Seven of Cups',
+            'Seven of Pentacles', 'Seven of Swords', 'Seven of Wands', 'Six of Cups',
+            'Six of Pentacles', 'Six of Swords', 'Six of Wands', 'Strength',
+            'Temperance', 'Ten of Cups', 'Ten of Pentacles', 'Ten of Swords',
+            'Ten of Wands', 'The Chariot', 'The Devil', 'The Emperor',
+            'The Empress', 'The Fool', 'The Hanged Man', 'The Hermit',
+            'The Hierophant', 'The High Priestess', 'The Lovers', 'The Magician',
+            'The Moon', 'The Star', 'The Sun', 'The Tower',
+            'The World', 'Three of Cups', 'Three of Pentacles', 'Three of Swords',
+            'Three of Wands', 'Two of Cups', 'Two of Pentacles', 'Two of Swords',
+            'Two of Wands', 'Wheel of Fortune'
+        ];
+        
+        let currentRotation = 0;
+        let isDragging = false;
+        let dragDistance = 0;
+        let startX = 0;
+        let lastRotation = 0;
+        let animationFrame = null;
+        let selectedCards = [];
+        let currentSlot = 0;
+        let isAnimating = false;
+        
+        function createFan() {
+            fanContainer.innerHTML = '';
+            const angleStep = TOTAL_ANGLE / (CARDS_COUNT - 1);
+            
+            for (let i = 0; i < CARDS_COUNT; i++) {
+                const cardWrapper = document.createElement('div');
+                cardWrapper.className = 'fan-card-wrapper';
+                cardWrapper.dataset.index = i;
+                
+                const card = document.createElement('div');
+                card.className = 'fan-card';
+                
+                const img = document.createElement('img');
+                img.src = CARD_IMAGE;
+                img.alt = 'Card';
+                img.draggable = false;
+                
+                card.appendChild(img);
+                
+                const clickZone = document.createElement('div');
+                clickZone.className = 'card-click-zone';
+                clickZone.dataset.cardIndex = i;
+                
+                cardWrapper.appendChild(card);
+                cardWrapper.appendChild(clickZone);
+                fanContainer.appendChild(cardWrapper);
+                
+                const angle = -TOTAL_ANGLE/2 + i * angleStep;
+                cardWrapper.style.transform = `rotate(${angle}deg) translateY(-33.5vh)`;
+                cardWrapper.style.zIndex = i;
+            }
+        }
+        
+        // 🔥 ДИНАМИЧЕСКИЙ РАСЧЕТ ВИДИМОЙ ЗОНЫ: работает на всех устройствах!
+        function updateFan(rotation) {
+            const wrappers = fanContainer.querySelectorAll('.fan-card-wrapper');
+            const angleStep = TOTAL_ANGLE / (CARDS_COUNT - 1);
+            
+            // Шаг 1: Собираем все видимые карты с их позициями
+            let visibleCards = [];
+            wrappers.forEach((wrapper, i) => {
+                const baseAngle = -TOTAL_ANGLE/2 + i * angleStep;
+                const angle = baseAngle + rotation;
+                
+                if (Math.abs(angle) <= 90) {
+                    visibleCards.push({wrapper, index: i, angle});
+                }
+            });
+            
+            // Шаг 2: Обновляем каждую карту
+            wrappers.forEach((wrapper, i) => {
+                const baseAngle = -TOTAL_ANGLE/2 + i * angleStep;
+                const angle = baseAngle + rotation;
+                wrapper.style.transform = `rotate(${angle}deg) translateY(-33.5vh)`;
+                
+                const clickZone = wrapper.querySelector('.card-click-zone');
+                
+                if (Math.abs(angle) > 90) {
+                    wrapper.style.opacity = '0';
+                    wrapper.style.pointerEvents = 'none';
+                } else {
+                    wrapper.style.opacity = '1';
+                    wrapper.style.pointerEvents = 'auto';
+                    
+                    // 🔥 ДИНАМИЧЕСКИЙ РАСЧЕТ: Вычисляем реальную видимую зону
+                    const visibleWidth = calculateVisibleWidth(wrapper, visibleCards, i);
+                    clickZone.style.width = visibleWidth + '%';
+                }
+                
+                wrapper.style.zIndex = i;
+            });
+            
+            updateEdgeIndicators(rotation);
+        }
+        
+        // 🔥 НОВАЯ ФУНКЦИЯ: Вычисляет процент видимой части карты
+        function calculateVisibleWidth(currentWrapper, visibleCards, currentIndex) {
+            const currentCardData = visibleCards.find(card => card.index === currentIndex);
+            if (!currentCardData) return 100;
+            
+            const nextCard = visibleCards.find(card => card.index > currentIndex);
+            
+            if (!nextCard) {
+                return 100;
+            }
+            
+            const currentRect = currentWrapper.getBoundingClientRect();
+            const nextRect = nextCard.wrapper.getBoundingClientRect();
+            
+            if (nextRect.left >= currentRect.right) {
+                return 100;
+            }
+            
+            const visiblePixels = nextRect.left - currentRect.left;
+            const totalWidth = currentRect.width;
+            
+            let visiblePercent = (visiblePixels / totalWidth) * 100;
+            
+            visiblePercent = Math.max(20, Math.min(100, visiblePercent));
+            
+            return visiblePercent;
+        }
+        
+        function updateEdgeIndicators(rotation) {
+            const maxLeftRotation = TOTAL_ANGLE / 2;
+            const maxRightRotation = -TOTAL_ANGLE / 2;
+            
+            if (rotation >= maxLeftRotation - 5) {
+                leftEdge.classList.add('visible');
+            } else {
+                leftEdge.classList.remove('visible');
+            }
+            
+            if (rotation <= maxRightRotation + 5) {
+                rightEdge.classList.add('visible');
+            } else {
+                rightEdge.classList.remove('visible');
+            }
+        }
+        
+        fanContainer.addEventListener('mousedown', startDrag);
+        fanContainer.addEventListener('touchstart', startDrag, {passive: false});
+        
+        fanContainer.addEventListener('click', handleCardClick);
+        fanContainer.addEventListener('touchend', function(e) {
+            if (dragDistance > 20) return;
+            handleCardClick(e);
+        }, {passive: false});
+        
+        function handleCardClick(e) {
+            if (isAnimating) {
+                console.log('⏸️ Анимация в процессе, клик заблокирован');
+                return;
+            }
+            
+            if (currentSlot >= SLOTS_COUNT) return;
+            if (dragDistance > 20) return;
+            
+            const clickZone = e.target.closest('.card-click-zone');
+            
+            if (clickZone) {
+                const cardIndex = clickZone.dataset.cardIndex;
+                const cardWrapper = fanContainer.querySelector(`.fan-card-wrapper[data-index="${cardIndex}"]`);
+                
+                if (cardWrapper && cardWrapper.style.opacity !== '0') {
+                    console.log('✅ Выбрана карта:', cardIndex, 'для слота:', currentSlot);
+                    selectCard(cardWrapper.querySelector('.fan-card'));
+                }
+            }
+        }
+        
+        function startDrag(e) {
+            e.preventDefault();
+            isDragging = true;
+            dragDistance = 0;
+            startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+            lastRotation = currentRotation;
+            fanContainer.style.cursor = 'grabbing';
+            
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
+            }
+        }
+        
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('touchmove', drag, {passive: false});
+        
+        function drag(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            
+            const currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+            const deltaX = currentX - startX;
+            dragDistance = Math.abs(deltaX);
+            
+            currentRotation = lastRotation + (deltaX * 0.15);
+            
+            const maxLeft = TOTAL_ANGLE / 2;
+            const maxRight = -TOTAL_ANGLE / 2;
+            
+            if (currentRotation > maxLeft) {
+                const excess = currentRotation - maxLeft;
+                currentRotation = maxLeft + excess * 0.3;
+            } else if (currentRotation < maxRight) {
+                const excess = currentRotation - maxRight;
+                currentRotation = maxRight + excess * 0.3;
+            }
+            
+            updateFan(currentRotation);
+        }
+        
+        document.addEventListener('mouseup', endDrag);
+        document.addEventListener('touchend', endDrag);
+        document.addEventListener('mouseleave', endDrag);
+        
+        function endDrag(e) {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            fanContainer.style.cursor = 'grab';
+            
+            springBack();
+        }
+        
+        function springBack() {
+            const maxLeft = TOTAL_ANGLE / 2;
+            const maxRight = -TOTAL_ANGLE / 2;
+            
+            if (currentRotation > maxLeft || currentRotation < maxRight) {
+                const targetRotation = currentRotation > maxLeft ? maxLeft : maxRight;
+                
+                const animate = () => {
+                    const diff = targetRotation - currentRotation;
+                    
+                    if (Math.abs(diff) > 0.5) {
+                        currentRotation += diff * 0.15;
+                        updateFan(currentRotation);
+                        animationFrame = requestAnimationFrame(animate);
+                    } else {
+                        currentRotation = targetRotation;
+                        updateFan(currentRotation);
+                        lastRotation = currentRotation;
+                        if (animationFrame) {
+                            cancelAnimationFrame(animationFrame);
+                            animationFrame = null;
+                        }
+                    }
+                };
+                
+                animate();
+            } else {
+                lastRotation = currentRotation;
+            }
+        }
+        
+        function selectCard(card) {
+            if (isAnimating || currentSlot >= SLOTS_COUNT) return;
+            
+            isAnimating = true;
+            
+            const targetSlotIndex = currentSlot;
+            
+            const selectedCardName = TAROT_CARDS[Math.floor(Math.random() * TAROT_CARDS.length)];
+            selectedCards.push(selectedCardName);
+            
+            const slot = document.getElementById(`slot-${targetSlotIndex}`);
+            const targetRect = slot.getBoundingClientRect();
+            
+            const rect = card.getBoundingClientRect();
+            const computedStyle = getComputedStyle(card);
+            const transform = computedStyle.transform;
+            const matrix = new DOMMatrix(transform);
+            const angle = Math.atan2(matrix.b, matrix.a) * (180 / Math.PI);
+            
+            card.style.opacity = '0';
+            
+            const copy = document.createElement('div');
+            copy.className = 'fan-card';
+            copy.innerHTML = card.innerHTML;
+            copy.style.position = 'fixed';
+            copy.style.left = rect.left + 'px';
+            copy.style.top = rect.top + 'px';
+            copy.style.width = rect.width + 'px';
+            copy.style.height = rect.height + 'px';
+            copy.style.margin = '0';
+            copy.style.transform = `rotate(${angle}deg)`;
+            copy.style.transformOrigin = 'center center';
+            copy.style.zIndex = '3000';
+            copy.style.pointerEvents = 'none';
+            
+            document.body.appendChild(copy);
+            copy.offsetHeight;
+            
+            requestAnimationFrame(() => {
+                copy.style.transition = 'transform 200ms ease-out';
+                copy.style.transform = `rotate(${angle}deg) translateY(-70px) scale(1.08)`;
+                
+                setTimeout(() => {
+                    copy.style.transition = 'all 800ms cubic-bezier(0.4, 0, 0.2, 1)';
+                    copy.style.left = targetRect.left + 'px';
+                    copy.style.top = targetRect.top + 'px';
+                    copy.style.width = targetRect.width + 'px';
+                    copy.style.height = targetRect.height + 'px';
+                    copy.style.transform = 'rotate(0deg) translateY(0) scale(1)';
+                }, 200);
+                
+                setTimeout(() => {
+                    const emptySlot = slot.querySelector('.card-empty');
+                    emptySlot.classList.remove('card-empty');
+                    emptySlot.classList.add('card-back-face');
+                    
+                    const cardImage = slot.querySelector('.card-front-face img');
+                    cardImage.src = `tarot_correct_names/${selectedCardName}.png`;
+                    
+                    copy.style.opacity = '0';
+                    copy.style.transition = 'opacity 300ms';
+                    setTimeout(() => copy.remove(), 300);
+                    
+                    currentSlot++;
+                    
+                    setTimeout(() => {
+                        isAnimating = false;
+                        console.log('✅ Анимация завершена, можно выбирать следующую карту');
+                        
+                        if (currentSlot >= SLOTS_COUNT) {
+                            app.classList.add('all-picked');
+                            fanContainer.style.pointerEvents = 'none';
+                            
+                            setTimeout(() => {
+                                openBtn.classList.add('show');
+                            }, 200);
+                        }
+                    }, 100);
+                }, 1000);
+            });
+        }
+        
+        openBtn.addEventListener('click', () => {
+            openBtn.classList.remove('show');
+            
+            setTimeout(() => {
+                for (let i = 0; i < SLOTS_COUNT; i++) {
+                    setTimeout(() => {
+                        const flipSlot = document.getElementById(`slot-${i}`);
+                        flipSlot.classList.add('flipped');
+                    }, i * 600);
+                }
+                
+                app.classList.add('flipped');
+                
+                setTimeout(() => {
+                    resultBtn.classList.add('show');
+                }, SLOTS_COUNT * 600 + 500);
+            }, 300);
+        });
+        
+        resultBtn.addEventListener('click', () => {
+            const data = JSON.stringify({
+                cards: selectedCards,
+                type: 'near_future'
+            });
+            
+            tg.sendData(data);
+        });
+        
+        createFan();
+        updateFan(currentRotation);
+    </script>
+</body>
+</html>

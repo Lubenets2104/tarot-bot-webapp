@@ -490,8 +490,12 @@
                     card.style.pointerEvents = 'none';
                 }
                 
-                const normalizedAngle = angle + 90;
-                card.style.zIndex = Math.floor(normalizedAngle);
+                // 🔥 ИСПРАВЛЕНО: Центральные карты (угол близок к 0) должны иметь МАКСИМАЛЬНЫЙ z-index
+                // Формула: 1000 - Math.abs(angle) * 10
+                // Карта с углом 0° получает z-index = 1000 (сверху)
+                // Карты по краям (±90°) получают z-index = 100 (снизу)
+                const zIndex = Math.floor(1000 - Math.abs(angle) * 10);
+                card.style.zIndex = zIndex;
             });
             
             updateEdgeIndicators(rotation);

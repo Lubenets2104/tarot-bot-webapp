@@ -490,11 +490,8 @@
                     card.style.pointerEvents = 'none';
                 }
                 
-                // 🔥 УЛУЧШЕНО: Правильный z-index - центральные карты (угол близок к 0) должны быть сверху
-                // Используем формулу: 1000 - Math.abs(angle) * 10
-                // Это гарантирует, что карта с углом 0° имеет z-index = 1000, а карты по краям меньше
-                const zIndex = Math.floor(1000 - Math.abs(angle) * 10);
-                card.style.zIndex = zIndex;
+                const normalizedAngle = angle + 90;
+                card.style.zIndex = Math.floor(normalizedAngle);
             });
             
             updateEdgeIndicators(rotation);

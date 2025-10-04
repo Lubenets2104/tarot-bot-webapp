@@ -212,6 +212,7 @@
                 0 2px 6px rgba(0, 0, 0, 0.4),
                 0 4px 12px rgba(0, 0, 0, 0.3);
             background: #1a2a38;
+            pointer-events: none;
         }
 
         .fan-edge-indicator {
@@ -518,7 +519,55 @@
         fanContainer.addEventListener('mousedown', startDrag);
         fanContainer.addEventListener('touchstart', startDrag, {passive: false});
         
+        // 🔥 ДОБАВЛЯЕМ ОТДЕЛЬНЫЙ ОБРАБОТЧИК КЛИКА
+        fanContainer.addEventListener('click', function(e) {
+            console.log('🎯 КЛИК СРАБОТАЛ!');
+            
+            if (app.classList.contains('picked')) {
+                console.log('❌ Карта уже выбрана');
+                return;
+            }
+            
+            const clickX = e.clientX;
+            const clickY = e.clientY;
+            
+            console.log('👆 Координаты клика:', clickX, clickY);
+            
+            // 🔥 ПРОВЕРЯЕМ КАЖДУЮ КАРТУ ВРУЧНУЮ
+            const cards = fanContainer.querySelectorAll('.fan-card');
+            let clickedCard = null;
+            let maxZIndex = -Infinity;
+            
+            cards.forEach(card => {
+                if (card.style.opacity === '0') return;
+                
+                const rect = card.getBoundingClientRect();
+                
+                // Проверяем попадание в границы карты
+                if (clickX >= rect.left && clickX <= rect.right && 
+                    clickY >= rect.top && clickY <= rect.bottom) {
+                    
+                    const zIndex = parseInt(card.style.zIndex) || 0;
+                    console.log('✅ Карта попала:', card.dataset.index, 'z-index:', zIndex);
+                    
+                    // Выбираем карту с максимальным z-index
+                    if (zIndex > maxZIndex) {
+                        maxZIndex = zIndex;
+                        clickedCard = card;
+                    }
+                }
+            });
+            
+            if (clickedCard) {
+                console.log('🚀 Выбираем карту:', clickedCard.dataset.index);
+                selectCard(clickedCard);
+            } else {
+                console.log('❌ Карта не найдена');
+            }
+        });
+        
         function startDrag(e) {
+            console.log('🟢 startDrag сработал');
             e.preventDefault();
             isDragging = true;
             dragDistance = 0;
@@ -564,27 +613,34 @@
         document.addEventListener('mouseleave', endDrag);
         
         function endDrag(e) {
+            console.log('🔴 endDrag сработал, isDragging:', isDragging, 'dragDistance:', dragDistance);
             if (!isDragging) return;
             
-            const wasDragging = dragDistance > 10;
             isDragging = false;
             fanContainer.style.cursor = 'grab';
             
             springBack();
             
-            if (!wasDragging && (e.type === 'mouseup' || e.type === 'touchend')) {
+            // 🔥 УПРОЩЕННАЯ ЛОГИКА: ПРОБУЕМ ВЫБРАТЬ КАРТУ ПРИ ЛЮБОМ ОТПУСКАНИИ
+            if (e.type === 'mouseup' || e.type === 'touchend') {
                 const clickX = e.type === 'mouseup' ? e.clientX : e.changedTouches[0].clientX;
                 const clickY = e.type === 'mouseup' ? e.clientY : e.changedTouches[0].clientY;
                 
-                // 🔥 ИСПОЛЬЗУЕМ elementFromPoint - браузер сам найдёт верхний элемент с учётом z-index!
-                const element = document.elementFromPoint(clickX, clickY);
+                console.log('👆 Клик в координатах:', clickX, clickY);
                 
-                // Находим родительскую карту
-                const clickedCard = element ? element.closest('.fan-card') : null;
+                // 🔥 ИСПОЛЬЗУЕМ elementsFromPoint
+                const elements = document.elementsFromPoint(clickX, clickY);
+                console.log('📋 Найдено элементов:', elements.length);
                 
-                // Если нашли карту и она видима - выбираем!
-                if (clickedCard && clickedCard.style.opacity !== '0') {
-                    selectCard(clickedCard);
+                // Ищем первую карту в стопке
+                for (let element of elements) {
+                    if (element.classList.contains('fan-card')) {
+                        console.log('✅ Нашли карту!', element.dataset.index, 'Прозрачность:', element.style.opacity);
+                        if (element.style.opacity !== '0') {
+                            selectCard(element);
+                            break;
+                        }
+                    }
                 }
             }
         }

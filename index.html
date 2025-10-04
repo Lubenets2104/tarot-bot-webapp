@@ -191,7 +191,6 @@
             cursor: grabbing;
         }
 
-        /* 🔥 НОВАЯ СТРУКТУРА: Обёртка для карты */
         .fan-card-wrapper {
             position: absolute;
             width: 85px;
@@ -203,7 +202,6 @@
             pointer-events: auto;
         }
 
-        /* 🔥 Сама карта (визуальная часть) */
         .fan-card {
             position: absolute;
             width: 100%;
@@ -211,7 +209,7 @@
             pointer-events: none;
         }
 
-        /* 🔥 КЛИКАБЕЛЬНАЯ ЗОНА (невидимая) */
+        /* 🔥 КЛИКАБЕЛЬНАЯ ЗОНА - теперь динамически адаптируется! */
         .card-click-zone {
             position: absolute;
             left: 0;
@@ -220,6 +218,7 @@
             width: 35%;
             cursor: pointer;
             z-index: 100;
+            transition: width 0.15s ease;
             /* ⬇️ Раскомментируйте для отладки - увидите кликабельные зоны красным */
             /* background: rgba(255, 0, 0, 0.3); */
         }
@@ -473,18 +472,15 @@
         let animationFrame = null;
         let selectedCard = null;
         
-        // 🔥 НОВАЯ ФУНКЦИЯ: Создание веера с кликабельными зонами
         function createFan() {
             fanContainer.innerHTML = '';
             const angleStep = TOTAL_ANGLE / (CARDS_COUNT - 1);
             
             for (let i = 0; i < CARDS_COUNT; i++) {
-                // Создаём обёртку для карты
                 const cardWrapper = document.createElement('div');
                 cardWrapper.className = 'fan-card-wrapper';
                 cardWrapper.dataset.index = i;
                 
-                // Создаём визуальную карту
                 const card = document.createElement('div');
                 card.className = 'fan-card';
                 
@@ -495,12 +491,10 @@
                 
                 card.appendChild(img);
                 
-                // 🔥 Создаём кликабельную зону
                 const clickZone = document.createElement('div');
                 clickZone.className = 'card-click-zone';
                 clickZone.dataset.cardIndex = i;
                 
-                // Добавляем элементы в обёртку
                 cardWrapper.appendChild(card);
                 cardWrapper.appendChild(clickZone);
                 fanContainer.appendChild(cardWrapper);
@@ -511,12 +505,12 @@
             }
         }
         
-        // 🔥 ОБНОВЛЕННАЯ ФУНКЦИЯ: Обновление веера с умными кликабельными зонами
+        // 🔥 ДИНАМИЧЕСКИЙ РАСЧЕТ ВИДИМОЙ ЗОНЫ: работает на всех устройствах!
         function updateFan(rotation) {
             const wrappers = fanContainer.querySelectorAll('.fan-card-wrapper');
             const angleStep = TOTAL_ANGLE / (CARDS_COUNT - 1);
             
-            // Сначала определяем видимые карты
+            // Шаг 1: Собираем все видимые карты с их позициями
             let visibleCards = [];
             wrappers.forEach((wrapper, i) => {
                 const baseAngle = -TOTAL_ANGLE/2 + i * angleStep;
@@ -527,6 +521,7 @@
                 }
             });
             
+            // Шаг 2: Обновляем каждую карту
             wrappers.forEach((wrapper, i) => {
                 const baseAngle = -TOTAL_ANGLE/2 + i * angleStep;
                 const angle = baseAngle + rotation;
@@ -542,26 +537,51 @@
                     wrapper.style.opacity = '1';
                     wrapper.style.pointerEvents = 'auto';
                     
-                    // 🔥 УМНАЯ ЛОГИКА: Определяем размер кликабельной зоны
-                    // Последняя видимая карта справа = 100% кликабельна
-                    // Все остальные = только левая часть (35%)
-                    
-                    const isRightmostCard = visibleCards.length > 0 && 
-                                           i === visibleCards[visibleCards.length - 1].index;
-                    
-                    if (isRightmostCard) {
-                        clickZone.style.width = '100%'; // Вся карта кликабельна
-                    } else {
-                        clickZone.style.width = '35%'; // Только левая видимая часть
-                    }
+                    // 🔥 ДИНАМИЧЕСКИЙ РАСЧЕТ: Вычисляем реальную видимую зону
+                    const visibleWidth = calculateVisibleWidth(wrapper, visibleCards, i);
+                    clickZone.style.width = visibleWidth + '%';
                 }
                 
-                // 🔥 ПРАВИЛЬНЫЙ Z-INDEX: карты лежат по порядку (слева направо)
-                // Чем правее карта (больше индекс), тем выше z-index
                 wrapper.style.zIndex = i;
             });
             
             updateEdgeIndicators(rotation);
+        }
+        
+        // 🔥 НОВАЯ ФУНКЦИЯ: Вычисляет процент видимой части карты
+        function calculateVisibleWidth(currentWrapper, visibleCards, currentIndex) {
+            // Находим текущую карту в массиве видимых
+            const currentCardData = visibleCards.find(card => card.index === currentIndex);
+            if (!currentCardData) return 100;
+            
+            // Находим следующую карту справа (с большим индексом)
+            const nextCard = visibleCards.find(card => card.index > currentIndex);
+            
+            // Если это последняя видимая карта справа - она кликабельна на 100%
+            if (!nextCard) {
+                return 100;
+            }
+            
+            // Вычисляем реальное перекрытие на основе позиций карт
+            const currentRect = currentWrapper.getBoundingClientRect();
+            const nextRect = nextCard.wrapper.getBoundingClientRect();
+            
+            // Если карты не перекрываются - 100% кликабельна
+            if (nextRect.left >= currentRect.right) {
+                return 100;
+            }
+            
+            // Вычисляем видимую часть (в пикселях)
+            const visiblePixels = nextRect.left - currentRect.left;
+            const totalWidth = currentRect.width;
+            
+            // Преобразуем в проценты
+            let visiblePercent = (visiblePixels / totalWidth) * 100;
+            
+            // Ограничиваем минимум 20% и максимум 100% для надёжности
+            visiblePercent = Math.max(20, Math.min(100, visiblePercent));
+            
+            return visiblePercent;
         }
         
         function updateEdgeIndicators(rotation) {
@@ -584,7 +604,6 @@
         fanContainer.addEventListener('mousedown', startDrag);
         fanContainer.addEventListener('touchstart', startDrag, {passive: false});
         
-        // 🔥 ПРОСТОЙ ОБРАБОТЧИК КЛИКА - работает с кликабельными зонами
         fanContainer.addEventListener('click', handleCardClick);
         fanContainer.addEventListener('touchend', function(e) {
             if (dragDistance > 20) return;
@@ -595,7 +614,6 @@
             if (app.classList.contains('picked')) return;
             if (dragDistance > 20) return;
             
-            // 🔥 ПРОСТОТА: Ищем кликабельную зону
             const clickZone = e.target.closest('.card-click-zone');
             
             if (clickZone) {

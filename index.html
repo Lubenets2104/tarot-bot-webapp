@@ -490,8 +490,11 @@
                     card.style.pointerEvents = 'none';
                 }
                 
-                const normalizedAngle = angle + 90;
-                card.style.zIndex = Math.floor(normalizedAngle);
+                // 🔥 УЛУЧШЕНО: Правильный z-index - центральные карты (угол близок к 0) должны быть сверху
+                // Используем формулу: 1000 - Math.abs(angle) * 10
+                // Это гарантирует, что карта с углом 0° имеет z-index = 1000, а карты по краям меньше
+                const zIndex = Math.floor(1000 - Math.abs(angle) * 10);
+                card.style.zIndex = zIndex;
             });
             
             updateEdgeIndicators(rotation);
@@ -576,8 +579,8 @@
                 const clickY = e.type === 'mouseup' ? e.clientY : e.changedTouches[0].clientY;
                 
                 const cards = fanContainer.querySelectorAll('.fan-card');
-                let bestCard = null;
-                let bestScore = Infinity;
+                let clickedCard = null;
+                let maxZIndex = -Infinity;
                 
                 cards.forEach(card => {
                     // Игнорируем скрытые карты
@@ -589,32 +592,19 @@
                     if (clickX >= rect.left && clickX <= rect.right && 
                         clickY >= rect.top && clickY <= rect.bottom) {
                         
-                        // Вычисляем центр карты
-                        const cardCenterX = rect.left + rect.width / 2;
-                        const cardCenterY = rect.top + rect.height / 2;
-                        
-                        // Расстояние от центра карты до точки клика
-                        const distance = Math.sqrt(
-                            Math.pow(clickX - cardCenterX, 2) + 
-                            Math.pow(clickY - cardCenterY, 2)
-                        );
-                        
-                        // Получаем z-index карты
                         const cardZIndex = parseInt(card.style.zIndex) || 0;
                         
-                        // Комбинированный score: приоритет z-index, но учитываем расстояние
-                        // Карты с более высоким z-index получают бонус
-                        const score = distance - (cardZIndex * 0.5);
-                        
-                        if (score < bestScore) {
-                            bestScore = score;
-                            bestCard = card;
+                        // 🔥 ПРОСТО И НАДЁЖНО: выбираем карту с максимальным z-index
+                        // Это гарантирует, что выберётся карта, которая визуально сверху
+                        if (cardZIndex > maxZIndex) {
+                            maxZIndex = cardZIndex;
+                            clickedCard = card;
                         }
                     }
                 });
                 
-                if (bestCard) {
-                    selectCard(bestCard);
+                if (clickedCard) {
+                    selectCard(clickedCard);
                 }
             }
         }

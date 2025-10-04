@@ -191,7 +191,8 @@
             cursor: grabbing;
         }
 
-        .fan-card {
+        /* 🔥 НОВАЯ СТРУКТУРА: Обёртка для карты */
+        .fan-card-wrapper {
             position: absolute;
             width: 85px;
             height: 132px;
@@ -200,6 +201,27 @@
             margin-left: -42.5px;
             transform-origin: center 33.5vh;
             pointer-events: auto;
+        }
+
+        /* 🔥 Сама карта (визуальная часть) */
+        .fan-card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* 🔥 КЛИКАБЕЛЬНАЯ ЗОНА (невидимая) */
+        .card-click-zone {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 35%;
+            cursor: pointer;
+            z-index: 100;
+            /* ⬇️ Раскомментируйте для отладки - увидите кликабельные зоны красным */
+            /* background: rgba(255, 0, 0, 0.3); */
         }
 
         .fan-card img {
@@ -417,7 +439,7 @@
         const cardNameEl = document.getElementById('cardName');
         
         const CARDS_COUNT = 78;
-        const TOTAL_ANGLE = 540; // 🔥 УВЕЛИЧЕНО В 1.5 РАЗА (360 * 1.5 = 540)
+        const TOTAL_ANGLE = 540;
         const CARD_IMAGE = 'images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png';
         
         const TAROT_CARDS = [
@@ -451,14 +473,20 @@
         let animationFrame = null;
         let selectedCard = null;
         
+        // 🔥 НОВАЯ ФУНКЦИЯ: Создание веера с кликабельными зонами
         function createFan() {
             fanContainer.innerHTML = '';
             const angleStep = TOTAL_ANGLE / (CARDS_COUNT - 1);
             
             for (let i = 0; i < CARDS_COUNT; i++) {
+                // Создаём обёртку для карты
+                const cardWrapper = document.createElement('div');
+                cardWrapper.className = 'fan-card-wrapper';
+                cardWrapper.dataset.index = i;
+                
+                // Создаём визуальную карту
                 const card = document.createElement('div');
                 card.className = 'fan-card';
-                card.dataset.index = i;
                 
                 const img = document.createElement('img');
                 img.src = CARD_IMAGE;
@@ -466,42 +494,78 @@
                 img.draggable = false;
                 
                 card.appendChild(img);
-                fanContainer.appendChild(card);
+                
+                // 🔥 Создаём кликабельную зону
+                const clickZone = document.createElement('div');
+                clickZone.className = 'card-click-zone';
+                clickZone.dataset.cardIndex = i;
+                
+                // Добавляем элементы в обёртку
+                cardWrapper.appendChild(card);
+                cardWrapper.appendChild(clickZone);
+                fanContainer.appendChild(cardWrapper);
                 
                 const angle = -TOTAL_ANGLE/2 + i * angleStep;
-                card.style.transform = `rotate(${angle}deg) translateY(-33.5vh)`;
-                card.style.zIndex = i;
+                cardWrapper.style.transform = `rotate(${angle}deg) translateY(-33.5vh)`;
+                cardWrapper.style.zIndex = i;
             }
         }
         
+        // 🔥 ОБНОВЛЕННАЯ ФУНКЦИЯ: Обновление веера с умными кликабельными зонами
         function updateFan(rotation) {
-            const cards = fanContainer.querySelectorAll('.fan-card');
+            const wrappers = fanContainer.querySelectorAll('.fan-card-wrapper');
             const angleStep = TOTAL_ANGLE / (CARDS_COUNT - 1);
             
-            cards.forEach((card, i) => {
+            // Сначала определяем видимые карты
+            let visibleCards = [];
+            wrappers.forEach((wrapper, i) => {
                 const baseAngle = -TOTAL_ANGLE/2 + i * angleStep;
                 const angle = baseAngle + rotation;
-                card.style.transform = `rotate(${angle}deg) translateY(-33.5vh)`;
                 
+                if (Math.abs(angle) <= 90) {
+                    visibleCards.push({wrapper, index: i, angle});
+                }
+            });
+            
+            wrappers.forEach((wrapper, i) => {
+                const baseAngle = -TOTAL_ANGLE/2 + i * angleStep;
+                const angle = baseAngle + rotation;
+                wrapper.style.transform = `rotate(${angle}deg) translateY(-33.5vh)`;
+                
+                const clickZone = wrapper.querySelector('.card-click-zone');
+                
+                // Скрываем карты вне зоны видимости
                 if (Math.abs(angle) > 90) {
-                    card.style.opacity = '0';
-                    card.style.pointerEvents = 'none';
+                    wrapper.style.opacity = '0';
+                    wrapper.style.pointerEvents = 'none';
                 } else {
-                    card.style.opacity = '1';
-                    card.style.pointerEvents = 'none';
+                    wrapper.style.opacity = '1';
+                    wrapper.style.pointerEvents = 'auto';
+                    
+                    // 🔥 УМНАЯ ЛОГИКА: Определяем размер кликабельной зоны
+                    // Последняя видимая карта справа = 100% кликабельна
+                    // Все остальные = только левая часть (35%)
+                    
+                    const isRightmostCard = visibleCards.length > 0 && 
+                                           i === visibleCards[visibleCards.length - 1].index;
+                    
+                    if (isRightmostCard) {
+                        clickZone.style.width = '100%'; // Вся карта кликабельна
+                    } else {
+                        clickZone.style.width = '35%'; // Только левая видимая часть
+                    }
                 }
                 
-                // 🔥 Старая формула z-index (не меняем, просто увеличено расстояние между картами)
-                const normalizedAngle = angle + 90;
-                card.style.zIndex = Math.floor(normalizedAngle);
+                // Z-index для правильного перекрытия
+                wrapper.style.zIndex = Math.floor(10000 - Math.abs(angle) * 100);
             });
             
             updateEdgeIndicators(rotation);
         }
         
         function updateEdgeIndicators(rotation) {
-            const maxLeftRotation = TOTAL_ANGLE / 2; // Динамический расчет
-            const maxRightRotation = -TOTAL_ANGLE / 2; // Динамический расчет
+            const maxLeftRotation = TOTAL_ANGLE / 2;
+            const maxRightRotation = -TOTAL_ANGLE / 2;
             
             if (rotation >= maxLeftRotation - 5) {
                 leftEdge.classList.add('visible');
@@ -519,87 +583,32 @@
         fanContainer.addEventListener('mousedown', startDrag);
         fanContainer.addEventListener('touchstart', startDrag, {passive: false});
         
-        // 🔥 ДОБАВЛЯЕМ ОТДЕЛЬНЫЙ ОБРАБОТЧИК КЛИКА ДЛЯ МЫШИ
+        // 🔥 ПРОСТОЙ ОБРАБОТЧИК КЛИКА - работает с кликабельными зонами
         fanContainer.addEventListener('click', handleCardClick);
-        
-        // 🔥 ДОБАВЛЯЕМ ОБРАБОТЧИК ДЛЯ ТАЧА (ТЕЛЕФОН)
         fanContainer.addEventListener('touchend', function(e) {
-            // Если был драг - не обрабатываем как клик (увеличен порог до 20px)
             if (dragDistance > 20) return;
-            
             handleCardClick(e);
         }, {passive: false});
         
         function handleCardClick(e) {
-            console.log('🎯 КЛИК СРАБОТАЛ!');
+            if (app.classList.contains('picked')) return;
+            if (dragDistance > 20) return;
             
-            if (app.classList.contains('picked')) {
-                console.log('❌ Карта уже выбрана');
-                return;
-            }
+            // 🔥 ПРОСТОТА: Ищем кликабельную зону
+            const clickZone = e.target.closest('.card-click-zone');
             
-            // Проверяем dragDistance - если больше 20px, это был драг, а не клик
-            if (dragDistance > 20) {
-                console.log('❌ Это был драг, не клик (dragDistance:', dragDistance, ')');
-                return;
-            }
-            
-            let clickX, clickY;
-            
-            if (e.type === 'touchend') {
-                // Для touch берем координаты из changedTouches
-                clickX = e.changedTouches[0].clientX;
-                clickY = e.changedTouches[0].clientY;
-            } else {
-                // Для click - из clientX/Y
-                clickX = e.clientX;
-                clickY = e.clientY;
-            }
-            
-            console.log('👆 Координаты клика:', clickX, clickY);
-            
-            // 🔥 ПРОВЕРЯЕМ КАЖДУЮ КАРТУ ВРУЧНУЮ
-            const cards = fanContainer.querySelectorAll('.fan-card');
-            let clickedCard = null;
-            let minDistance = Infinity;
-            
-            cards.forEach(card => {
-                if (card.style.opacity === '0') return;
+            if (clickZone) {
+                const cardIndex = clickZone.dataset.cardIndex;
+                const cardWrapper = fanContainer.querySelector(`.fan-card-wrapper[data-index="${cardIndex}"]`);
                 
-                const rect = card.getBoundingClientRect();
-                
-                // Проверяем попадание в границы карты
-                if (clickX >= rect.left && clickX <= rect.right && 
-                    clickY >= rect.top && clickY <= rect.bottom) {
-                    
-                    // 🔥 ВМЕСТО z-index ИСПОЛЬЗУЕМ РАССТОЯНИЕ ДО ЦЕНТРА КАРТЫ
-                    const centerX = rect.left + rect.width / 2;
-                    const centerY = rect.top + rect.height / 2;
-                    const distance = Math.sqrt(
-                        Math.pow(clickX - centerX, 2) + 
-                        Math.pow(clickY - centerY, 2)
-                    );
-                    
-                    console.log('✅ Карта попала:', card.dataset.index, 'расстояние до центра:', Math.round(distance));
-                    
-                    // Выбираем карту, центр которой БЛИЖЕ к точке клика
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        clickedCard = card;
-                    }
+                if (cardWrapper && cardWrapper.style.opacity !== '0') {
+                    console.log('✅ Выбрана карта:', cardIndex);
+                    selectCard(cardWrapper.querySelector('.fan-card'));
                 }
-            });
-            
-            if (clickedCard) {
-                console.log('🚀 Выбираем карту:', clickedCard.dataset.index);
-                selectCard(clickedCard);
-            } else {
-                console.log('❌ Карта не найдена');
             }
         }
         
         function startDrag(e) {
-            console.log('🟢 startDrag сработал');
             e.preventDefault();
             isDragging = true;
             dragDistance = 0;
@@ -626,8 +635,8 @@
             
             currentRotation = lastRotation + (deltaX * 0.15);
             
-            const maxLeft = TOTAL_ANGLE / 2; // Динамический расчет
-            const maxRight = -TOTAL_ANGLE / 2; // Динамический расчет
+            const maxLeft = TOTAL_ANGLE / 2;
+            const maxRight = -TOTAL_ANGLE / 2;
             
             if (currentRotation > maxLeft) {
                 const excess = currentRotation - maxLeft;
@@ -645,41 +654,17 @@
         document.addEventListener('mouseleave', endDrag);
         
         function endDrag(e) {
-            console.log('🔴 endDrag сработал, isDragging:', isDragging, 'dragDistance:', dragDistance);
             if (!isDragging) return;
             
             isDragging = false;
             fanContainer.style.cursor = 'grab';
             
             springBack();
-            
-            // 🔥 УПРОЩЕННАЯ ЛОГИКА: ПРОБУЕМ ВЫБРАТЬ КАРТУ ПРИ ЛЮБОМ ОТПУСКАНИИ
-            if (e.type === 'mouseup' || e.type === 'touchend') {
-                const clickX = e.type === 'mouseup' ? e.clientX : e.changedTouches[0].clientX;
-                const clickY = e.type === 'mouseup' ? e.clientY : e.changedTouches[0].clientY;
-                
-                console.log('👆 Клик в координатах:', clickX, clickY);
-                
-                // 🔥 ИСПОЛЬЗУЕМ elementsFromPoint
-                const elements = document.elementsFromPoint(clickX, clickY);
-                console.log('📋 Найдено элементов:', elements.length);
-                
-                // Ищем первую карту в стопке
-                for (let element of elements) {
-                    if (element.classList.contains('fan-card')) {
-                        console.log('✅ Нашли карту!', element.dataset.index, 'Прозрачность:', element.style.opacity);
-                        if (element.style.opacity !== '0') {
-                            selectCard(element);
-                            break;
-                        }
-                    }
-                }
-            }
         }
         
         function springBack() {
-            const maxLeft = TOTAL_ANGLE / 2; // Динамический расчет
-            const maxRight = -TOTAL_ANGLE / 2; // Динамический расчет
+            const maxLeft = TOTAL_ANGLE / 2;
+            const maxRight = -TOTAL_ANGLE / 2;
             
             if (currentRotation > maxLeft || currentRotation < maxRight) {
                 const targetRotation = currentRotation > maxLeft ? maxLeft : maxRight;
@@ -709,10 +694,7 @@
         }
         
         function selectCard(card) {
-            // 🔥 ВАЖНО: Отключаем возможность выбрать карту повторно
-            if (app.classList.contains('picked')) {
-                return; // Карта уже выбрана, игнорируем повторные клики
-            }
+            if (app.classList.contains('picked')) return;
             
             const rect = card.getBoundingClientRect();
             const targetRect = centerCard.getBoundingClientRect();
@@ -757,8 +739,6 @@
                 setTimeout(() => {
                     centerCard.querySelector('.card-front').classList.add('selected');
                     app.classList.add('picked');
-                    
-                    // 🔥 ВАЖНО: Полностью отключаем взаимодействие с веером
                     fanContainer.style.pointerEvents = 'none';
                     
                     setTimeout(() => {
@@ -794,9 +774,7 @@
         });
         
         resultBtn.addEventListener('click', () => {
-            if (!selectedCard) {
-                return;
-            }
+            if (!selectedCard) return;
             
             const data = JSON.stringify({
                 card: selectedCard,

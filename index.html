@@ -524,8 +524,8 @@
         
         // 🔥 ДОБАВЛЯЕМ ОБРАБОТЧИК ДЛЯ ТАЧА (ТЕЛЕФОН)
         fanContainer.addEventListener('touchend', function(e) {
-            // Если был драг - не обрабатываем как клик
-            if (dragDistance > 10) return;
+            // Если был драг - не обрабатываем как клик (увеличен порог до 20px)
+            if (dragDistance > 20) return;
             
             handleCardClick(e);
         }, {passive: false});
@@ -535,6 +535,12 @@
             
             if (app.classList.contains('picked')) {
                 console.log('❌ Карта уже выбрана');
+                return;
+            }
+            
+            // Проверяем dragDistance - если больше 20px, это был драг, а не клик
+            if (dragDistance > 20) {
+                console.log('❌ Это был драг, не клик (dragDistance:', dragDistance, ')');
                 return;
             }
             
@@ -555,7 +561,7 @@
             // 🔥 ПРОВЕРЯЕМ КАЖДУЮ КАРТУ ВРУЧНУЮ
             const cards = fanContainer.querySelectorAll('.fan-card');
             let clickedCard = null;
-            let maxZIndex = -Infinity;
+            let minDistance = Infinity;
             
             cards.forEach(card => {
                 if (card.style.opacity === '0') return;
@@ -566,12 +572,19 @@
                 if (clickX >= rect.left && clickX <= rect.right && 
                     clickY >= rect.top && clickY <= rect.bottom) {
                     
-                    const zIndex = parseInt(card.style.zIndex) || 0;
-                    console.log('✅ Карта попала:', card.dataset.index, 'z-index:', zIndex);
+                    // 🔥 ВМЕСТО z-index ИСПОЛЬЗУЕМ РАССТОЯНИЕ ДО ЦЕНТРА КАРТЫ
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    const distance = Math.sqrt(
+                        Math.pow(clickX - centerX, 2) + 
+                        Math.pow(clickY - centerY, 2)
+                    );
                     
-                    // Выбираем карту с максимальным z-index
-                    if (zIndex > maxZIndex) {
-                        maxZIndex = zIndex;
+                    console.log('✅ Карта попала:', card.dataset.index, 'расстояние до центра:', Math.round(distance));
+                    
+                    // Выбираем карту, центр которой БЛИЖЕ к точке клика
+                    if (distance < minDistance) {
+                        minDistance = distance;
                         clickedCard = card;
                     }
                 }

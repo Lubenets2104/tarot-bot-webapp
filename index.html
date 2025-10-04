@@ -416,7 +416,7 @@
         const cardNameEl = document.getElementById('cardName');
         
         const CARDS_COUNT = 78;
-        const TOTAL_ANGLE = 360;
+        const TOTAL_ANGLE = 648; // 🔥 УВЕЛИЧЕНО В 1.8 РАЗА (360 * 1.8 = 648) - больше расстояние между картами
         const CARD_IMAGE = 'images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png';
         
         const TAROT_CARDS = [
@@ -490,12 +490,9 @@
                     card.style.pointerEvents = 'none';
                 }
                 
-                // 🔥 ИСПРАВЛЕНО: Центральные карты (угол близок к 0) должны иметь МАКСИМАЛЬНЫЙ z-index
-                // Формула: 1000 - Math.abs(angle) * 10
-                // Карта с углом 0° получает z-index = 1000 (сверху)
-                // Карты по краям (±90°) получают z-index = 100 (снизу)
-                const zIndex = Math.floor(1000 - Math.abs(angle) * 10);
-                card.style.zIndex = zIndex;
+                // 🔥 Старая формула z-index (не меняем, просто увеличено расстояние между картами)
+                const normalizedAngle = angle + 90;
+                card.style.zIndex = Math.floor(normalizedAngle);
             });
             
             updateEdgeIndicators(rotation);

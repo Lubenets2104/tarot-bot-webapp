@@ -576,8 +576,8 @@
                 const clickY = e.type === 'mouseup' ? e.clientY : e.changedTouches[0].clientY;
                 
                 const cards = fanContainer.querySelectorAll('.fan-card');
-                let bestCard = null;
-                let bestScore = -Infinity; // Чем выше score, тем лучше
+                let clickedCard = null;
+                let maxZIndex = -Infinity;
                 
                 cards.forEach(card => {
                     // Игнорируем скрытые карты
@@ -589,33 +589,18 @@
                     if (clickX >= rect.left && clickX <= rect.right && 
                         clickY >= rect.top && clickY <= rect.bottom) {
                         
-                        // Z-index - основной приоритет
                         const cardZIndex = parseInt(card.style.zIndex) || 0;
                         
-                        // Расстояние от центра карты (нормализованное)
-                        const cardCenterX = rect.left + rect.width / 2;
-                        const cardCenterY = rect.top + rect.height / 2;
-                        
-                        const distance = Math.sqrt(
-                            Math.pow(clickX - cardCenterX, 2) + 
-                            Math.pow(clickY - cardCenterY, 2)
-                        );
-                        
-                        // 🔥 ОПТИМАЛЬНАЯ ФОРМУЛА:
-                        // ПРИОРИТЕТ - РАССТОЯНИЕ до центра карты
-                        // Z-index используется только как минимальная поправка (делим на 10)
-                        // Это гарантирует, что выберётся та карта, на которую реально кликнули
-                        const score = -(distance) + (cardZIndex / 10);
-                        
-                        if (score > bestScore) {
-                            bestScore = score;
-                            bestCard = card;
+                        // 🔥 ПРОСТО И НАДЁЖНО: выбираем карту с максимальным z-index
+                        if (cardZIndex > maxZIndex) {
+                            maxZIndex = cardZIndex;
+                            clickedCard = card;
                         }
                     }
                 });
                 
-                if (bestCard) {
-                    selectCard(bestCard);
+                if (clickedCard) {
+                    selectCard(clickedCard);
                 }
             }
         }

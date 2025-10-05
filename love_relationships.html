@@ -743,7 +743,10 @@
             const matrix = new DOMMatrix(transform);
             const angle = Math.atan2(matrix.b, matrix.a) * (180 / Math.PI);
             
+            // 🔥 ИСПРАВЛЕНО: Полностью отключаем карту в веере
+            const cardWrapper = card.closest('.fan-card-wrapper');
             card.style.opacity = '0';
+            cardWrapper.style.pointerEvents = 'none';  // 🔥 Теперь на неё нельзя кликнуть!
             
             const copy = document.createElement('div');
             copy.className = 'fan-card';

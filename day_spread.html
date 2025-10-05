@@ -699,7 +699,9 @@
             const targetSlotIndex = currentSlot;
             
             const selectedCardName = TAROT_CARDS[Math.floor(Math.random() * TAROT_CARDS.length)];
-            selectedCards.push(selectedCardName);
+            selectedCards.push(selectedCardName);  // 🔥 Сохраняем карту в массив
+            
+            console.log('🎴 Выбранные карты:', selectedCards);
             
             const slot = document.getElementById(`slot-${targetSlotIndex}`);
             const targetRect = slot.getBoundingClientRect();
@@ -793,8 +795,9 @@
         });
         
         resultBtn.addEventListener('click', () => {
+            // 🔥 ПЕРЕДАЕМ ВСЕ ВЫБРАННЫЕ КАРТЫ
             const data = JSON.stringify({
-                cards: selectedCards,
+                cards: selectedCards,  // Массив из 3 карт
                 type: 'day_spread'
             });
             

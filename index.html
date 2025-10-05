@@ -795,11 +795,13 @@
         resultBtn.addEventListener('click', () => {
             if (!selectedCard) return;
             
+            // 🔥 ИСПРАВЛЕНО: Отправляем массив cards, а не одну карту card
             const data = JSON.stringify({
-                card: selectedCard,
+                cards: [selectedCard],  // Массив из 1 карты
                 type: 'yes_no'
             });
             
+            console.log('📤 Отправка данных:', data);
             tg.sendData(data);
         });
         

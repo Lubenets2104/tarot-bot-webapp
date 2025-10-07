@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yes or No - Tarot Card Reading</title>
+    <title>Вопрос Да-Нет - Таро</title>
     <style>
         * {
             margin: 0;
@@ -373,7 +373,7 @@
 <body>
     <div class="app">
         <header class="topbar">
-            <h1>Yes or no</h1>
+            <h1>Вопрос Да-Нет</h1>
         </header>
 
         <div class="center-card" id="centerCard">
@@ -389,8 +389,7 @@
         <div class="card-name" id="cardName"></div>
 
         <p class="hint">
-            Ask a question that can be answered yes or no, and<br>
-            then draw a card.
+            Выбери 1 карту
         </p>
 
         <div class="fan-wrapper">
@@ -415,11 +414,11 @@
 
         <div class="choose">
             <img class="choose-arrow" src="images/arrow-choose-f075370c9171d3b9e1804a88a536bbc1.png" alt="">
-            <div>Choose the card</div>
+            <div>Выбери карту</div>
         </div>
 
-        <button class="cta" id="openBtn">Open the card</button>
-        <button class="result-btn" id="resultBtn">Get Result</button>
+        <button class="cta" id="openBtn">Открыть карту</button>
+        <button class="result-btn" id="resultBtn">Получить результат</button>
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -776,6 +775,21 @@
             
             const tarotImage = document.getElementById('tarotImage');
             const imagePath = `tarot_correct_names/${selectedCard}.png`;
+            
+            // 🔥 ДОБАВЛЕНО: Логирование и обработка ошибок загрузки
+            console.log(`📸 Загрузка изображения: ${imagePath}`);
+            
+            tarotImage.onerror = function() {
+                console.error(`❌ ОШИБКА загрузки изображения: ${imagePath}`);
+                console.error(`Карта: ${selectedCard}`);
+                // Пробуем с другим путём или показываем placeholder
+                this.src = 'images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png';
+            };
+            
+            tarotImage.onload = function() {
+                console.log(`✅ Изображение загружено успешно: ${imagePath}`);
+            };
+            
             tarotImage.src = imagePath;
             
             cardNameEl.textContent = selectedCard;

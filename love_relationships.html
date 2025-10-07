@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Love and Relationships - Tarot Card Reading</title>
+    <title>Любовь и отношение - Таро</title>
     <style>
         * {
             margin: 0;
@@ -351,7 +351,7 @@
 <body>
     <div class="app">
         <header class="topbar">
-            <h1>Love and relationships</h1>
+            <h1>Любовь и отношение</h1>
         </header>
 
         <!-- 🔥 5 СЛОТОВ ДЛЯ КАРТ В ФОРМЕ КРЕСТА -->
@@ -408,7 +408,7 @@
         </div>
 
         <p class="hint">
-            Choose 5 cards for love and relationship reading
+            Выбери 5 карт для расклада на любовь и отношения
         </p>
 
         <div class="fan-wrapper">
@@ -432,11 +432,11 @@
         </div>
 
         <div class="choose">
-            <div>Choose the card</div>
+            <div>Выбери карту</div>
         </div>
 
-        <button class="open-btn" id="openBtn">Open cards</button>
-        <button class="result-btn" id="resultBtn">Get Result</button>
+        <button class="open-btn" id="openBtn">Открыть карты</button>
+        <button class="result-btn" id="resultBtn">Получить результат</button>
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -784,7 +784,23 @@
                     emptySlot.classList.add('card-back-face');
                     
                     const cardImage = slot.querySelector('.card-front-face img');
-                    cardImage.src = `tarot_correct_names/${selectedCardName}.png`;
+                    const imagePath = `tarot_correct_names/${selectedCardName}.png`;
+                    
+                    // 🔥 ДОБАВЛЕНО: Логирование и обработка ошибок загрузки
+                    console.log(`📸 Загрузка изображения: ${imagePath}`);
+                    
+                    cardImage.onerror = function() {
+                        console.error(`❌ ОШИБКА загрузки изображения: ${imagePath}`);
+                        console.error(`Карта: ${selectedCardName}`);
+                        // Пробуем с другим путём или показываем placeholder
+                        this.src = 'images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png';
+                    };
+                    
+                    cardImage.onload = function() {
+                        console.log(`✅ Изображение загружено успешно: ${imagePath}`);
+                    };
+                    
+                    cardImage.src = imagePath;
                     
                     copy.style.opacity = '0';
                     copy.style.transition = 'opacity 300ms';

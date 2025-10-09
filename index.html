@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -209,7 +209,6 @@
             pointer-events: none;
         }
 
-        /* 🔥 КЛИКАБЕЛЬНАЯ ЗОНА - теперь динамически адаптируется! */
         .card-click-zone {
             position: absolute;
             left: 0;
@@ -219,8 +218,6 @@
             cursor: pointer;
             z-index: 100;
             transition: width 0.15s ease;
-            /* ⬇️ Раскомментируйте для отладки - увидите кликабельные зоны красным */
-            /* background: rgba(255, 0, 0, 0.3); */
         }
 
         .fan-card img {
@@ -423,6 +420,102 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        // 🔮 СЛОВАРЬ ПЕРЕВОДА КАРТ ТАРО (Английский → Русский)
+        const TAROT_TRANSLATIONS = {
+            // Старшие Арканы
+            'The Fool': 'Шут',
+            'The Magician': 'Маг',
+            'The High Priestess': 'Верховная Жрица',
+            'The Empress': 'Императрица',
+            'The Emperor': 'Император',
+            'The Hierophant': 'Иерофант',
+            'The Lovers': 'Влюбленные',
+            'The Chariot': 'Колесница',
+            'Strength': 'Сила',
+            'The Hermit': 'Отшельник',
+            'Wheel of Fortune': 'Колесо Фортуны',
+            'Justice': 'Справедливость',
+            'The Hanged Man': 'Повешенный',
+            'Death': 'Смерть',
+            'Temperance': 'Умеренность',
+            'The Devil': 'Дьявол',
+            'The Tower': 'Башня',
+            'The Star': 'Звезда',
+            'The Moon': 'Луна',
+            'The Sun': 'Солнце',
+            'Judgement': 'Суд',
+            'The World': 'Мир',
+            
+            // Жезлы
+            'Ace of Wands': 'Туз Жезлов',
+            'Two of Wands': 'Двойка Жезлов',
+            'Three of Wands': 'Тройка Жезлов',
+            'Four of Wands': 'Четверка Жезлов',
+            'Five of Wands': 'Пятерка Жезлов',
+            'Six of Wands': 'Шестерка Жезлов',
+            'Seven of Wands': 'Семерка Жезлов',
+            'Eight of Wands': 'Восьмерка Жезлов',
+            'Nine of Wands': 'Девятка Жезлов',
+            'Ten of Wands': 'Десятка Жезлов',
+            'Page of Wands': 'Паж Жезлов',
+            'Knight of Wands': 'Рыцарь Жезлов',
+            'Queen of Wands': 'Королева Жезлов',
+            'King of Wands': 'Король Жезлов',
+            
+            // Кубки
+            'Ace of Cups': 'Туз Кубков',
+            'Two of Cups': 'Двойка Кубков',
+            'Three of Cups': 'Тройка Кубков',
+            'Four of Cups': 'Четверка Кубков',
+            'Five of Cups': 'Пятерка Кубков',
+            'Six of Cups': 'Шестерка Кубков',
+            'Seven of Cups': 'Семерка Кубков',
+            'Eight of Cups': 'Восьмерка Кубков',
+            'Nine of Cups': 'Девятка Кубков',
+            'Ten of Cups': 'Десятка Кубков',
+            'Page of Cups': 'Паж Кубков',
+            'Knight of Cups': 'Рыцарь Кубков',
+            'Queen of Cups': 'Королева Кубков',
+            'King of Cups': 'Король Кубков',
+            
+            // Мечи
+            'Ace of Swords': 'Туз Мечей',
+            'Two of Swords': 'Двойка Мечей',
+            'Three of Swords': 'Тройка Мечей',
+            'Four of Swords': 'Четверка Мечей',
+            'Five of Swords': 'Пятерка Мечей',
+            'Six of Swords': 'Шестерка Мечей',
+            'Seven of Swords': 'Семерка Мечей',
+            'Eight of Swords': 'Восьмерка Мечей',
+            'Nine of Swords': 'Девятка Мечей',
+            'Ten of Swords': 'Десятка Мечей',
+            'Page of Swords': 'Паж Мечей',
+            'Knight of Swords': 'Рыцарь Мечей',
+            'Queen of Swords': 'Королева Мечей',
+            'King of Swords': 'Король Мечей',
+            
+            // Пентакли
+            'Ace of Pentacles': 'Туз Пентаклей',
+            'Two of Pentacles': 'Двойка Пентаклей',
+            'Three of Pentacles': 'Тройка Пентаклей',
+            'Four of Pentacles': 'Четверка Пентаклей',
+            'Five of Pentacles': 'Пятерка Пентаклей',
+            'Six of Pentacles': 'Шестерка Пентаклей',
+            'Seven of Pentacles': 'Семерка Пентаклей',
+            'Eight of Pentacles': 'Восьмерка Пентаклей',
+            'Nine of Pentacles': 'Девятка Пентаклей',
+            'Ten of Pentacles': 'Десятка Пентаклей',
+            'Page of Pentacles': 'Паж Пентаклей',
+            'Knight of Pentacles': 'Рыцарь Пентаклей',
+            'Queen of Pentacles': 'Королева Пентаклей',
+            'King of Pentacles': 'Король Пентаклей'
+        };
+
+        // 🔮 ФУНКЦИЯ ПЕРЕВОДА
+        function translateCard(englishName) {
+            return TAROT_TRANSLATIONS[englishName] || englishName;
+        }
+
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
@@ -439,6 +532,41 @@
         const CARDS_COUNT = 78;
         const TOTAL_ANGLE = 540;
         const CARD_IMAGE = 'images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png';
+        
+        // 🔮 Словарь перевода карт Таро
+        const TAROT_TRANSLATIONS = {
+            'The Fool': 'Шут', 'The Magician': 'Маг', 'The High Priestess': 'Верховная Жрица',
+            'The Empress': 'Императрица', 'The Emperor': 'Император', 'The Hierophant': 'Иерофант',
+            'The Lovers': 'Влюбленные', 'The Chariot': 'Колесница', 'Strength': 'Сила',
+            'The Hermit': 'Отшельник', 'Wheel of Fortune': 'Колесо Фортуны', 'Justice': 'Справедливость',
+            'The Hanged Man': 'Повешенный', 'Death': 'Смерть', 'Temperance': 'Умеренность',
+            'The Devil': 'Дьявол', 'The Tower': 'Башня', 'The Star': 'Звезда',
+            'The Moon': 'Луна', 'The Sun': 'Солнце', 'Judgement': 'Суд', 'The World': 'Мир',
+            'Ace of Wands': 'Туз Жезлов', 'Two of Wands': 'Двойка Жезлов', 'Three of Wands': 'Тройка Жезлов',
+            'Four of Wands': 'Четверка Жезлов', 'Five of Wands': 'Пятерка Жезлов', 'Six of Wands': 'Шестерка Жезлов',
+            'Seven of Wands': 'Семерка Жезлов', 'Eight of Wands': 'Восьмерка Жезлов', 'Nine of Wands': 'Девятка Жезлов',
+            'Ten of Wands': 'Десятка Жезлов', 'Page of Wands': 'Паж Жезлов', 'Knight of Wands': 'Рыцарь Жезлов',
+            'Queen of Wands': 'Королева Жезлов', 'King of Wands': 'Король Жезлов',
+            'Ace of Cups': 'Туз Кубков', 'Two of Cups': 'Двойка Кубков', 'Three of Cups': 'Тройка Кубков',
+            'Four of Cups': 'Четверка Кубков', 'Five of Cups': 'Пятерка Кубков', 'Six of Cups': 'Шестерка Кубков',
+            'Seven of Cups': 'Семерка Кубков', 'Eight of Cups': 'Восьмерка Кубков', 'Nine of Cups': 'Девятка Кубков',
+            'Ten of Cups': 'Десятка Кубков', 'Page of Cups': 'Паж Кубков', 'Knight of Cups': 'Рыцарь Кубков',
+            'Queen of Cups': 'Королева Кубков', 'King of Cups': 'Король Кубков',
+            'Ace of Swords': 'Туз Мечей', 'Two of Swords': 'Двойка Мечей', 'Three of Swords': 'Тройка Мечей',
+            'Four of Swords': 'Четверка Мечей', 'Five of Swords': 'Пятерка Мечей', 'Six of Swords': 'Шестерка Мечей',
+            'Seven of Swords': 'Семерка Мечей', 'Eight of Swords': 'Восьмерка Мечей', 'Nine of Swords': 'Девятка Мечей',
+            'Ten of Swords': 'Десятка Мечей', 'Page of Swords': 'Паж Мечей', 'Knight of Swords': 'Рыцарь Мечей',
+            'Queen of Swords': 'Королева Мечей', 'King of Swords': 'Король Мечей',
+            'Ace of Pentacles': 'Туз Пентаклей', 'Two of Pentacles': 'Двойка Пентаклей', 'Three of Pentacles': 'Тройка Пентаклей',
+            'Four of Pentacles': 'Четверка Пентаклей', 'Five of Pentacles': 'Пятерка Пентаклей', 'Six of Pentacles': 'Шестерка Пентаклей',
+            'Seven of Pentacles': 'Семерка Пентаклей', 'Eight of Pentacles': 'Восьмерка Пентаклей', 'Nine of Pentacles': 'Девятка Пентаклей',
+            'Ten of Pentacles': 'Десятка Пентаклей', 'Page of Pentacles': 'Паж Пентаклей', 'Knight of Pentacles': 'Рыцарь Пентаклей',
+            'Queen of Pentacles': 'Королева Пентаклей', 'King of Pentacles': 'Король Пентаклей'
+        };
+        
+        function translateCard(englishName) {
+            return TAROT_TRANSLATIONS[englishName] || englishName;
+        }
         
         const TAROT_CARDS = [
             'Ace of Cups', 'Ace of Pentacles', 'Ace of Swords', 'Ace of Wands',
@@ -504,12 +632,10 @@
             }
         }
         
-        // 🔥 ДИНАМИЧЕСКИЙ РАСЧЕТ ВИДИМОЙ ЗОНЫ: работает на всех устройствах!
         function updateFan(rotation) {
             const wrappers = fanContainer.querySelectorAll('.fan-card-wrapper');
             const angleStep = TOTAL_ANGLE / (CARDS_COUNT - 1);
             
-            // Шаг 1: Собираем все видимые карты с их позициями
             let visibleCards = [];
             wrappers.forEach((wrapper, i) => {
                 const baseAngle = -TOTAL_ANGLE/2 + i * angleStep;
@@ -520,7 +646,6 @@
                 }
             });
             
-            // Шаг 2: Обновляем каждую карту
             wrappers.forEach((wrapper, i) => {
                 const baseAngle = -TOTAL_ANGLE/2 + i * angleStep;
                 const angle = baseAngle + rotation;
@@ -528,7 +653,6 @@
                 
                 const clickZone = wrapper.querySelector('.card-click-zone');
                 
-                // Скрываем карты вне зоны видимости
                 if (Math.abs(angle) > 90) {
                     wrapper.style.opacity = '0';
                     wrapper.style.pointerEvents = 'none';
@@ -536,7 +660,6 @@
                     wrapper.style.opacity = '1';
                     wrapper.style.pointerEvents = 'auto';
                     
-                    // 🔥 ДИНАМИЧЕСКИЙ РАСЧЕТ: Вычисляем реальную видимую зону
                     const visibleWidth = calculateVisibleWidth(wrapper, visibleCards, i);
                     clickZone.style.width = visibleWidth + '%';
                 }
@@ -547,37 +670,27 @@
             updateEdgeIndicators(rotation);
         }
         
-        // 🔥 НОВАЯ ФУНКЦИЯ: Вычисляет процент видимой части карты
         function calculateVisibleWidth(currentWrapper, visibleCards, currentIndex) {
-            // Находим текущую карту в массиве видимых
             const currentCardData = visibleCards.find(card => card.index === currentIndex);
             if (!currentCardData) return 100;
             
-            // Находим следующую карту справа (с большим индексом)
             const nextCard = visibleCards.find(card => card.index > currentIndex);
             
-            // Если это последняя видимая карта справа - она кликабельна на 100%
             if (!nextCard) {
                 return 100;
             }
             
-            // Вычисляем реальное перекрытие на основе позиций карт
             const currentRect = currentWrapper.getBoundingClientRect();
             const nextRect = nextCard.wrapper.getBoundingClientRect();
             
-            // Если карты не перекрываются - 100% кликабельна
             if (nextRect.left >= currentRect.right) {
                 return 100;
             }
             
-            // Вычисляем видимую часть (в пикселях)
             const visiblePixels = nextRect.left - currentRect.left;
             const totalWidth = currentRect.width;
             
-            // Преобразуем в проценты
             let visiblePercent = (visiblePixels / totalWidth) * 100;
-            
-            // Ограничиваем минимум 20% и максимум 100% для надёжности
             visiblePercent = Math.max(20, Math.min(100, visiblePercent));
             
             return visiblePercent;
@@ -620,7 +733,6 @@
                 const cardWrapper = fanContainer.querySelector(`.fan-card-wrapper[data-index="${cardIndex}"]`);
                 
                 if (cardWrapper && cardWrapper.style.opacity !== '0') {
-                    console.log('✅ Выбрана карта:', cardIndex);
                     selectCard(cardWrapper.querySelector('.fan-card'));
                 }
             }
@@ -776,23 +888,15 @@
             const tarotImage = document.getElementById('tarotImage');
             const imagePath = `tarot_correct_names/${selectedCard}.png`;
             
-            // 🔥 ДОБАВЛЕНО: Логирование и обработка ошибок загрузки
-            console.log(`📸 Загрузка изображения: ${imagePath}`);
-            
             tarotImage.onerror = function() {
                 console.error(`❌ ОШИБКА загрузки изображения: ${imagePath}`);
-                console.error(`Карта: ${selectedCard}`);
-                // Пробуем с другим путём или показываем placeholder
                 this.src = 'images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png';
-            };
-            
-            tarotImage.onload = function() {
-                console.log(`✅ Изображение загружено успешно: ${imagePath}`);
             };
             
             tarotImage.src = imagePath;
             
-            cardNameEl.textContent = selectedCard;
+            // 🔮 ПОКАЗЫВАЕМ РУССКОЕ НАЗВАНИЕ
+            cardNameEl.textContent = translateCard(selectedCard);
             
             ctaBtn.classList.remove('show');
             
@@ -809,13 +913,11 @@
         resultBtn.addEventListener('click', () => {
             if (!selectedCard) return;
             
-            // 🔥 ИСПРАВЛЕНО: Отправляем массив cards, а не одну карту card
             const data = JSON.stringify({
-                cards: [selectedCard],  // Массив из 1 карты
+                cards: [selectedCard],
                 type: 'yes_no'
             });
             
-            console.log('📤 Отправка данных:', data);
             tg.sendData(data);
         });
         

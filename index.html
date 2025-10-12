@@ -119,12 +119,16 @@
         }
 
         .card-back {
-            background: transparent;
+            background: #fff;
             transform: rotateY(180deg);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            border: 6px solid #F2F5FA;
+            border-radius: 16px;
+            box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.35) inset,
+                        0 12px 30px rgba(0, 0, 0, 0.65);
         }
 
         .card-back img {
@@ -162,7 +166,7 @@
             color: #b7c7d5;
             line-height: 1.35;
             font-size: 14px;
-            margin: 12px 16px 0;
+            margin: 24px 16px 0;
             transition: opacity 0.35s ease;
         }
 
@@ -199,7 +203,8 @@
             bottom: 0;
             margin-left: -42.5px;
             transform-origin: center 33.5vh;
-            pointer-events: none;
+            pointer-events: auto;
+            cursor: pointer;
         }
 
         .fan-card img {
@@ -358,9 +363,7 @@
             <div class="glow"></div>
             <div class="card-inner">
                 <div class="card-rect card-front"></div>
-                <div class="card-rect card-back">
-                    <img id="tarotImage" src="" alt="Tarot Card">
-                </div>
+                <div class="card-rect card-back"></div>
             </div>
         </div>
 
@@ -499,6 +502,18 @@
                 img.draggable = false;
                 
                 card.appendChild(img);
+                
+                // 🎯 УНИВЕРСАЛЬНОЕ РЕШЕНИЕ: Клик прямо на карту
+                // Работает при ЛЮБОМ масштабе, т.к. браузер сам определяет границы элемента
+                card.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // Проверяем только: карта не выбрана и видима
+                    // Браузер сам не вызовет 'click' если был драг!
+                    if (!app.classList.contains('picked') && card.style.opacity !== '0') {
+                        selectCard(card);
+                    }
+                });
+                
                 fanContainer.appendChild(card);
                 
                 const angle = -TOTAL_ANGLE/2 + i * angleStep;
@@ -521,11 +536,12 @@
                     card.style.pointerEvents = 'none';
                 } else {
                     card.style.opacity = '1';
-                    card.style.pointerEvents = 'none';
+                    card.style.pointerEvents = 'auto';
                 }
                 
-                const normalizedAngle = angle + 90;
-                card.style.zIndex = Math.floor(normalizedAngle);
+                // ✅ Z-index на основе ТЕКУЩЕГО угла (правые карты выше)
+                // Карты справа (положительный угол) должны быть поверх
+                card.style.zIndex = Math.floor(1000 + angle * 10);
             });
             
             updateEdgeIndicators(rotation);
@@ -599,41 +615,15 @@
         function endDrag(e) {
             if (!isDragging) return;
             
-            const wasDragging = dragDistance > 10;
             isDragging = false;
             fanContainer.style.cursor = 'grab';
             
             springBack();
             
-            if (!wasDragging && (e.type === 'mouseup' || e.type === 'touchend')) {
-                const clickX = e.type === 'mouseup' ? e.clientX : e.changedTouches[0].clientX;
-                const clickY = e.type === 'mouseup' ? e.clientY : e.changedTouches[0].clientY;
-                
-                const cards = fanContainer.querySelectorAll('.fan-card');
-                let clickedCard = null;
-                let maxZIndex = -Infinity;
-                
-                cards.forEach(card => {
-                    if (card.style.opacity === '0') return;
-                    
-                    const rect = card.getBoundingClientRect();
-                    
-                    if (clickX >= rect.left && clickX <= rect.right && 
-                        clickY >= rect.top && clickY <= rect.bottom) {
-                        
-                        const cardZIndex = parseInt(card.style.zIndex) || 0;
-                        
-                        if (cardZIndex > maxZIndex) {
-                            maxZIndex = cardZIndex;
-                            clickedCard = card;
-                        }
-                    }
-                });
-                
-                if (clickedCard) {
-                    selectCard(clickedCard);
-                }
-            }
+            // 🎯 Сбрасываем dragDistance с задержкой
+            setTimeout(() => {
+                dragDistance = 0;
+            }, 100);
         }
         
         function springBack() {
@@ -724,11 +714,16 @@
         }
         
         ctaBtn.addEventListener('click', () => {
+            // ✅ ИСПРАВЛЕНО: Выбираем карту (для консистентности с другими раскладами)
             selectedCard = TAROT_CARDS[Math.floor(Math.random() * TAROT_CARDS.length)];
             
-            const tarotImage = document.getElementById('tarotImage');
-            const imagePath = `tarot_correct_names/${selectedCard}.png`;
-            tarotImage.src = imagePath;
+            const cardBack = document.querySelector('.card-back');
+            const img = document.createElement('img');
+            img.src = `tarot_correct_names/${selectedCard}.png`;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'contain';
+            cardBack.appendChild(img);
             
             // 🔮 ПОКАЗЫВАЕМ РУССКОЕ НАЗВАНИЕ
             cardNameEl.textContent = translateCard(selectedCard);

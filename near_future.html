@@ -130,12 +130,16 @@
 
         /* Лицевая сторона карты */
         .card-front-face {
-            background: transparent;
+            background: #fff;
             transform: rotateY(180deg);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            border: 3px solid #F2F5FA;
+            border-radius: 12px;
+            box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.3) inset,
+                        0 8px 20px rgba(0, 0, 0, 0.5);
         }
 
         .card-front-face img {
@@ -149,7 +153,7 @@
             color: #b7c7d5;
             line-height: 1.35;
             font-size: 13px;
-            margin: 12px 16px 0;
+            margin: 24px 16px 0;
             transition: opacity 0.35s ease;
         }
 
@@ -187,6 +191,7 @@
             margin-left: -42.5px;
             transform-origin: center 33.5vh;
             pointer-events: auto;
+            cursor: pointer;
         }
 
         .fan-card {
@@ -194,20 +199,6 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-        }
-
-        /* 🔥 КЛИКАБЕЛЬНАЯ ЗОНА - теперь динамически адаптируется! */
-        .card-click-zone {
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 35%;
-            cursor: pointer;
-            z-index: 100;
-            transition: width 0.15s ease;
-            /* ⬇️ Раскомментируйте для отладки */
-            /* background: rgba(255, 0, 0, 0.3); */
         }
 
         .fan-card img {
@@ -369,33 +360,25 @@
                 <div class="card-slot" id="slot-0">
                     <div class="card-slot-inner">
                         <div class="card-face card-empty"></div>
-                        <div class="card-face card-front-face">
-                            <img src="" alt="Tarot Card">
-                        </div>
+                        <div class="card-face card-front-face"></div>
                     </div>
                 </div>
                 <div class="card-slot" id="slot-1">
                     <div class="card-slot-inner">
                         <div class="card-face card-empty"></div>
-                        <div class="card-face card-front-face">
-                            <img src="" alt="Tarot Card">
-                        </div>
+                        <div class="card-face card-front-face"></div>
                     </div>
                 </div>
                 <div class="card-slot" id="slot-2">
                     <div class="card-slot-inner">
                         <div class="card-face card-empty"></div>
-                        <div class="card-face card-front-face">
-                            <img src="" alt="Tarot Card">
-                        </div>
+                        <div class="card-face card-front-face"></div>
                     </div>
                 </div>
                 <div class="card-slot" id="slot-3">
                     <div class="card-slot-inner">
                         <div class="card-face card-empty"></div>
-                        <div class="card-face card-front-face">
-                            <img src="" alt="Tarot Card">
-                        </div>
+                        <div class="card-face card-front-face"></div>
                     </div>
                 </div>
             </div>
@@ -405,9 +388,7 @@
                 <div class="card-slot" id="slot-4">
                     <div class="card-slot-inner">
                         <div class="card-face card-empty"></div>
-                        <div class="card-face card-front-face">
-                            <img src="" alt="Tarot Card">
-                        </div>
+                        <div class="card-face card-front-face"></div>
                     </div>
                 </div>
             </div>
@@ -448,6 +429,41 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        // 🔮 СЛОВАРЬ ПЕРЕВОДА КАРТ ТАРО (Английский → Русский)
+        const TAROT_TRANSLATIONS = {
+            'The Fool': 'Шут', 'The Magician': 'Маг', 'The High Priestess': 'Верховная Жрица',
+            'The Empress': 'Императрица', 'The Emperor': 'Император', 'The Hierophant': 'Иерофант',
+            'The Lovers': 'Влюбленные', 'The Chariot': 'Колесница', 'Strength': 'Сила',
+            'The Hermit': 'Отшельник', 'Wheel of Fortune': 'Колесо Фортуны', 'Justice': 'Справедливость',
+            'The Hanged Man': 'Повешенный', 'Death': 'Смерть', 'Temperance': 'Умеренность',
+            'The Devil': 'Дьявол', 'The Tower': 'Башня', 'The Star': 'Звезда',
+            'The Moon': 'Луна', 'The Sun': 'Солнце', 'Judgement': 'Суд', 'The World': 'Мир',
+            'Ace of Wands': 'Туз Жезлов', 'Two of Wands': 'Двойка Жезлов', 'Three of Wands': 'Тройка Жезлов',
+            'Four of Wands': 'Четверка Жезлов', 'Five of Wands': 'Пятерка Жезлов', 'Six of Wands': 'Шестерка Жезлов',
+            'Seven of Wands': 'Семерка Жезлов', 'Eight of Wands': 'Восьмерка Жезлов', 'Nine of Wands': 'Девятка Жезлов',
+            'Ten of Wands': 'Десятка Жезлов', 'Page of Wands': 'Паж Жезлов', 'Knight of Wands': 'Рыцарь Жезлов',
+            'Queen of Wands': 'Королева Жезлов', 'King of Wands': 'Король Жезлов',
+            'Ace of Cups': 'Туз Кубков', 'Two of Cups': 'Двойка Кубков', 'Three of Cups': 'Тройка Кубков',
+            'Four of Cups': 'Четверка Кубков', 'Five of Cups': 'Пятерка Кубков', 'Six of Cups': 'Шестерка Кубков',
+            'Seven of Cups': 'Семерка Кубков', 'Eight of Cups': 'Восьмерка Кубков', 'Nine of Cups': 'Девятка Кубков',
+            'Ten of Cups': 'Десятка Кубков', 'Page of Cups': 'Паж Кубков', 'Knight of Cups': 'Рыцарь Кубков',
+            'Queen of Cups': 'Королева Кубков', 'King of Cups': 'Король Кубков',
+            'Ace of Swords': 'Туз Мечей', 'Two of Swords': 'Двойка Мечей', 'Three of Swords': 'Тройка Мечей',
+            'Four of Swords': 'Четверка Мечей', 'Five of Swords': 'Пятерка Мечей', 'Six of Swords': 'Шестерка Мечей',
+            'Seven of Swords': 'Семерка Мечей', 'Eight of Swords': 'Восьмерка Мечей', 'Nine of Swords': 'Девятка Мечей',
+            'Ten of Swords': 'Десятка Мечей', 'Page of Swords': 'Паж Мечей', 'Knight of Swords': 'Рыцарь Мечей',
+            'Queen of Swords': 'Королева Мечей', 'King of Swords': 'Король Мечей',
+            'Ace of Pentacles': 'Туз Пентаклей', 'Two of Pentacles': 'Двойка Пентаклей', 'Three of Pentacles': 'Тройка Пентаклей',
+            'Four of Pentacles': 'Четверка Пентаклей', 'Five of Pentacles': 'Пятерка Пентаклей', 'Six of Pentacles': 'Шестерка Пентаклей',
+            'Seven of Pentacles': 'Семерка Пентаклей', 'Eight of Pentacles': 'Восьмерка Пентаклей', 'Nine of Pentacles': 'Девятка Пентаклей',
+            'Ten of Pentacles': 'Десятка Пентаклей', 'Page of Pentacles': 'Паж Пентаклей', 'Knight of Pentacles': 'Рыцарь Пентаклей',
+            'Queen of Pentacles': 'Королева Пентаклей', 'King of Pentacles': 'Король Пентаклей'
+        };
+
+        function translateCard(englishName) {
+            return TAROT_TRANSLATIONS[englishName] || englishName;
+        }
+
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
@@ -516,12 +532,18 @@
                 
                 card.appendChild(img);
                 
-                const clickZone = document.createElement('div');
-                clickZone.className = 'card-click-zone';
-                clickZone.dataset.cardIndex = i;
+                // 🎯 УНИВЕРСАЛЬНОЕ РЕШЕНИЕ: Клик прямо на карту
+                // Работает при ЛЮБОМ масштабе, т.к. браузер сам определяет границы элемента
+                cardWrapper.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // Проверяем только: не анимация и слот доступен
+                    // Браузер сам не вызовет 'click' если был драг!
+                    if (!isAnimating && currentSlot < SLOTS_COUNT && cardWrapper.style.opacity !== '0') {
+                        selectCard(card);
+                    }
+                });
                 
                 cardWrapper.appendChild(card);
-                cardWrapper.appendChild(clickZone);
                 fanContainer.appendChild(cardWrapper);
                 
                 const angle = -TOTAL_ANGLE/2 + i * angleStep;
@@ -541,7 +563,8 @@
                 const baseAngle = -TOTAL_ANGLE/2 + i * angleStep;
                 const angle = baseAngle + rotation;
                 
-                if (Math.abs(angle) <= 90) {
+                // ✅ ИСПРАВЛЕНО: Игнорируем уже выбранные карты
+                if (Math.abs(angle) <= 90 && wrapper.style.pointerEvents !== 'none') {
                     visibleCards.push({wrapper, index: i, angle});
                 }
             });
@@ -560,44 +583,13 @@
                 } else {
                     wrapper.style.opacity = '1';
                     wrapper.style.pointerEvents = 'auto';
-                    
-                    // 🔥 ДИНАМИЧЕСКИЙ РАСЧЕТ: Вычисляем реальную видимую зону
-                    const visibleWidth = calculateVisibleWidth(wrapper, visibleCards, i);
-                    clickZone.style.width = visibleWidth + '%';
                 }
                 
-                wrapper.style.zIndex = i;
+                // ✅ Z-index на основе ТЕКУЩЕГО угла (правые карты выше)
+                wrapper.style.zIndex = Math.floor(1000 + angle * 10);
             });
             
             updateEdgeIndicators(rotation);
-        }
-        
-        // 🔥 НОВАЯ ФУНКЦИЯ: Вычисляет процент видимой части карты
-        function calculateVisibleWidth(currentWrapper, visibleCards, currentIndex) {
-            const currentCardData = visibleCards.find(card => card.index === currentIndex);
-            if (!currentCardData) return 100;
-            
-            const nextCard = visibleCards.find(card => card.index > currentIndex);
-            
-            if (!nextCard) {
-                return 100;
-            }
-            
-            const currentRect = currentWrapper.getBoundingClientRect();
-            const nextRect = nextCard.wrapper.getBoundingClientRect();
-            
-            if (nextRect.left >= currentRect.right) {
-                return 100;
-            }
-            
-            const visiblePixels = nextRect.left - currentRect.left;
-            const totalWidth = currentRect.width;
-            
-            let visiblePercent = (visiblePixels / totalWidth) * 100;
-            
-            visiblePercent = Math.max(20, Math.min(100, visiblePercent));
-            
-            return visiblePercent;
         }
         
         function updateEdgeIndicators(rotation) {
@@ -619,34 +611,6 @@
         
         fanContainer.addEventListener('mousedown', startDrag);
         fanContainer.addEventListener('touchstart', startDrag, {passive: false});
-        
-        fanContainer.addEventListener('click', handleCardClick);
-        fanContainer.addEventListener('touchend', function(e) {
-            if (dragDistance > 20) return;
-            handleCardClick(e);
-        }, {passive: false});
-        
-        function handleCardClick(e) {
-            if (isAnimating) {
-                console.log('⏸️ Анимация в процессе, клик заблокирован');
-                return;
-            }
-            
-            if (currentSlot >= SLOTS_COUNT) return;
-            if (dragDistance > 20) return;
-            
-            const clickZone = e.target.closest('.card-click-zone');
-            
-            if (clickZone) {
-                const cardIndex = clickZone.dataset.cardIndex;
-                const cardWrapper = fanContainer.querySelector(`.fan-card-wrapper[data-index="${cardIndex}"]`);
-                
-                if (cardWrapper && cardWrapper.style.opacity !== '0') {
-                    console.log('✅ Выбрана карта:', cardIndex, 'для слота:', currentSlot);
-                    selectCard(cardWrapper.querySelector('.fan-card'));
-                }
-            }
-        }
         
         function startDrag(e) {
             e.preventDefault();
@@ -700,6 +664,11 @@
             fanContainer.style.cursor = 'grab';
             
             springBack();
+            
+            // 🎯 Сбрасываем dragDistance с задержкой
+            setTimeout(() => {
+                dragDistance = 0;
+            }, 100);
         }
         
         function springBack() {
@@ -740,8 +709,12 @@
             
             const targetSlotIndex = currentSlot;
             
-            const selectedCardName = TAROT_CARDS[Math.floor(Math.random() * TAROT_CARDS.length)];
-            selectedCards.push(selectedCardName);  // 🔥 Сохраняем карту в массив
+            // ✅ ИСПРАВЛЕНО: Выбираем карту, которой ещё нет в selectedCards
+            let selectedCardName;
+            do {
+                selectedCardName = TAROT_CARDS[Math.floor(Math.random() * TAROT_CARDS.length)];
+            } while (selectedCards.includes(selectedCardName));
+            selectedCards.push(selectedCardName);
             
             console.log('🎴 Выбранные карты:', selectedCards);
             
@@ -758,6 +731,11 @@
             const cardWrapper = card.closest('.fan-card-wrapper');
             card.style.opacity = '0';
             cardWrapper.style.pointerEvents = 'none';  // 🔥 Теперь на неё нельзя кликнуть!
+            
+            // ✅ ИСПРАВЛЕНО: Пересчитываем зоны кликабельности для оставшихся карт
+            setTimeout(() => {
+                updateFan(currentRotation);
+            }, 50);
             
             const copy = document.createElement('div');
             copy.className = 'fan-card';
@@ -794,24 +772,13 @@
                     emptySlot.classList.remove('card-empty');
                     emptySlot.classList.add('card-back-face');
                     
-                    const cardImage = slot.querySelector('.card-front-face img');
-                    const imagePath = `tarot_correct_names/${selectedCardName}.png`;
-                    
-                    // 🔥 ДОБАВЛЕНО: Логирование и обработка ошибок загрузки
-                    console.log(`📸 Загрузка изображения: ${imagePath}`);
-                    
-                    cardImage.onerror = function() {
-                        console.error(`❌ ОШИБКА загрузки изображения: ${imagePath}`);
-                        console.error(`Карта: ${selectedCardName}`);
-                        // Пробуем с другим путём или показываем placeholder
-                        this.src = 'images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png';
-                    };
-                    
-                    cardImage.onload = function() {
-                        console.log(`✅ Изображение загружено успешно: ${imagePath}`);
-                    };
-                    
-                    cardImage.src = imagePath;
+                    const cardFrontFace = slot.querySelector('.card-front-face');
+                    const img = document.createElement('img');
+                    img.src = `tarot_correct_names/${selectedCardName}.png`;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'contain';
+                    cardFrontFace.appendChild(img);
                     
                     copy.style.opacity = '0';
                     copy.style.transition = 'opacity 300ms';

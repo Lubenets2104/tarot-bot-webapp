@@ -60,19 +60,19 @@
 
         .cards-grid {
             width: 100%;
-            max-width: 250px;
+            max-width: 360px;
             margin: 24px auto 0;
             padding: 0 16px;
             display: grid;
-            grid-template-columns: repeat(3, 74px);
-            grid-template-rows: 132px;
-            gap: 10px;
+            grid-template-columns: repeat(3, 106px);
+            grid-template-rows: 190px;
+            gap: 12px;
             justify-content: center;
         }
 
         .card-slot {
-            width: 74px;
-            height: 132px;
+            width: 106px;
+            height: 190px;
             position: relative;
             perspective: 1000px;
         }
@@ -93,7 +93,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            border-radius: 12px;
+            border-radius: 0;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
         }
@@ -101,7 +101,7 @@
         .card-empty {
             background: rgba(20, 44, 52, 0.3);
             border: none;
-            border-radius: 12px;
+            border-radius: 0;
             box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.15) inset,
                         0 8px 20px rgba(0, 0, 0, 0.3);
             z-index: 2;
@@ -110,7 +110,7 @@
         .card-back-face {
             background: url("images/back-of-the-card-new.png") center/cover no-repeat;
             border: none;
-            border-radius: 12px;
+            border-radius: 0;
             box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.3) inset,
                         0 8px 20px rgba(0, 0, 0, 0.5);
             z-index: 2;
@@ -124,7 +124,7 @@
             justify-content: center;
             overflow: hidden;
             border: none;
-            border-radius: 12px;
+            border-radius: 0;
             box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.3) inset,
                         0 8px 20px rgba(0, 0, 0, 0.5);
         }
@@ -133,6 +133,10 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: high-quality;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .hint {
@@ -172,11 +176,11 @@
 
         .fan-card {
             position: absolute;
-            width: 74px;
-            height: 132px;
+            width: 106px;
+            height: 190px;
             left: 50%;
             bottom: 0;
-            margin-left: -37px;
+            margin-left: -53px;
             transform-origin: center 33.5vh;
             pointer-events: auto;
             cursor: pointer;
@@ -190,7 +194,7 @@
             -ms-user-select: none !important;
             user-select: none !important;
             touch-action: none !important;
-            border-radius: 8px;
+            border-radius: 0;
             overflow: hidden;
             box-shadow: 
                 0 2px 6px rgba(0, 0, 0, 0.4),
@@ -204,6 +208,11 @@
             border: none !important;
         }
 
+        .fan-card::before,
+        .fan-card::after {
+            display: none !important;
+        }
+
         .fan-card img {
             width: 100%;
             height: 100%;
@@ -214,14 +223,24 @@
             pointer-events: none;
             outline: none !important;
             -webkit-user-drag: none;
+            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
             background: transparent;
             display: block;
+            touch-action: none !important;
         }
 
         .fan-card img:focus,
         .fan-card img:active {
             outline: none !important;
             border: none !important;
+        }
+
+        .fan-card.animating-copy {
+            outline: none !important;
+            border: none !important;
+            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4),
+                        0 4px 12px rgba(0, 0, 0, 0.3) !important;
         }
 
         .fan-edge-indicator {
@@ -709,14 +728,23 @@
             card.style.pointerEvents = 'none';
             card.dataset.selected = 'true';  // 🔥 ПОМЕЧАЕМ КАК ВЫБРАННУЮ
             
+            // 🎯 ИСПРАВЛЕНИЕ: Используем фиксированные размеры карты
+            const CARD_WIDTH = 106;
+            const CARD_HEIGHT = 190;
+            
+            // Вычисляем центр повернутой карты
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
             const copy = document.createElement('div');
-            copy.className = 'fan-card';
+            copy.className = 'fan-card animating-copy';
             copy.innerHTML = card.innerHTML;
             copy.style.position = 'fixed';
-            copy.style.left = rect.left + 'px';
-            copy.style.top = rect.top + 'px';
-            copy.style.width = rect.width + 'px';
-            copy.style.height = rect.height + 'px';
+            // Позиционируем копию по центру с фиксированными размерами
+            copy.style.left = (centerX - CARD_WIDTH / 2) + 'px';
+            copy.style.top = (centerY - CARD_HEIGHT / 2) + 'px';
+            copy.style.width = CARD_WIDTH + 'px';
+            copy.style.height = CARD_HEIGHT + 'px';
             copy.style.margin = '0';
             copy.style.transform = `rotate(${angle}deg)`;
             copy.style.transformOrigin = 'center center';
@@ -724,8 +752,18 @@
             copy.style.pointerEvents = 'none';
             copy.style.outline = 'none';
             copy.style.border = 'none';
+            copy.style.webkitTapHighlightColor = 'rgba(0,0,0,0)';
             
             document.body.appendChild(copy);
+            
+            // Убираем рамки у img внутри копии
+            const copyImg = copy.querySelector('img');
+            if (copyImg) {
+                copyImg.style.outline = 'none';
+                copyImg.style.border = 'none';
+                copyImg.style.boxShadow = 'none';
+            }
+            
             copy.offsetHeight;
             
             requestAnimationFrame(() => {
@@ -752,6 +790,7 @@
                     img.style.width = '100%';
                     img.style.height = '100%';
                     img.style.objectFit = 'contain';
+                    img.style.imageRendering = '-webkit-optimize-contrast';
                     cardFrontFace.appendChild(img);
                     
                     copy.style.opacity = '0';

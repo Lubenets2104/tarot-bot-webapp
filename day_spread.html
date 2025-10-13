@@ -9,7 +9,10 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
             -webkit-tap-highlight-color: transparent;
+            outline: none !important;
+            -webkit-touch-callout: none !important;
         }
 
         html, body {
@@ -24,7 +27,7 @@
             align-items: center;
             justify-content: center;
             background: #000;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: Georgia, serif;
             user-select: none;
             -webkit-user-select: none;
             touch-action: pan-y;
@@ -48,7 +51,6 @@
         }
 
         .topbar h1 {
-            font-family: Georgia, serif;
             font-weight: 700;
             font-size: 20px;
             color: #fff;
@@ -58,19 +60,19 @@
 
         .cards-grid {
             width: 100%;
-            max-width: 300px;
+            max-width: 250px;
             margin: 24px auto 0;
             padding: 0 16px;
             display: grid;
-            grid-template-columns: repeat(3, 90px);
-            grid-template-rows: 138px;
+            grid-template-columns: repeat(3, 74px);
+            grid-template-rows: 132px;
             gap: 10px;
             justify-content: center;
         }
 
         .card-slot {
-            width: 90px;
-            height: 138px;
+            width: 74px;
+            height: 132px;
             position: relative;
             perspective: 1000px;
         }
@@ -98,7 +100,7 @@
 
         .card-empty {
             background: rgba(20, 44, 52, 0.3);
-            border: 3px solid rgba(242, 245, 250, 0.25);
+            border: none;
             border-radius: 12px;
             box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.15) inset,
                         0 8px 20px rgba(0, 0, 0, 0.3);
@@ -107,7 +109,7 @@
 
         .card-back-face {
             background: url("images/back-of-the-card-new.png") center/cover no-repeat;
-            border: 3px solid #F2F5FA;
+            border: none;
             border-radius: 12px;
             box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.3) inset,
                         0 8px 20px rgba(0, 0, 0, 0.5);
@@ -121,7 +123,7 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            border: 3px solid #F2F5FA;
+            border: none;
             border-radius: 12px;
             box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.3) inset,
                         0 8px 20px rgba(0, 0, 0, 0.5);
@@ -178,18 +180,48 @@
             transform-origin: center 33.5vh;
             pointer-events: auto;
             cursor: pointer;
+            outline: none !important;
+            border: none !important;
+            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+            -webkit-tap-highlight-color: transparent !important;
+            -webkit-touch-callout: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+            touch-action: none !important;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 
+                0 2px 6px rgba(0, 0, 0, 0.4),
+                0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .fan-card:focus,
+        .fan-card:active,
+        .fan-card:focus-visible {
+            outline: none !important;
+            border: none !important;
         }
 
         .fan-card img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 2.5px solid #E8EDF2;
-            box-shadow: 
-                0 2px 6px rgba(0, 0, 0, 0.4),
-                0 4px 12px rgba(0, 0, 0, 0.3);
+            object-fit: contain;
+            border-radius: 0;
+            border: none !important;
+            box-shadow: none !important;
             pointer-events: none;
+            outline: none !important;
+            -webkit-user-drag: none;
+            background: transparent;
+            display: block;
+        }
+
+        .fan-card img:focus,
+        .fan-card img:active {
+            outline: none !important;
+            border: none !important;
         }
 
         .fan-edge-indicator {
@@ -272,8 +304,8 @@
             transform: translate(-50%, 14px);
             bottom: 30px;
             padding: 16px 32px;
-            background: linear-gradient(90deg, #1ad4c6 0%, #2fe4a7 100%);
-            color: #fff;
+            background: #E8DCC8;
+            color: #2C1810;
             border: 0;
             border-radius: 28px;
             font-weight: 700;
@@ -302,8 +334,8 @@
             transform: translate(-50%, 14px);
             bottom: 30px;
             padding: 16px 32px;
-            background: linear-gradient(90deg, #1ad4c6 0%, #2fe4a7 100%);
-            color: #fff;
+            background: #E8DCC8;
+            color: #2C1810;
             border: 0;
             border-radius: 28px;
             font-weight: 700;
@@ -690,13 +722,15 @@
             copy.style.transformOrigin = 'center center';
             copy.style.zIndex = '3000';
             copy.style.pointerEvents = 'none';
+            copy.style.outline = 'none';
+            copy.style.border = 'none';
             
             document.body.appendChild(copy);
             copy.offsetHeight;
             
             requestAnimationFrame(() => {
                 copy.style.transition = 'transform 200ms ease-out';
-                copy.style.transform = `rotate(${angle}deg) translateY(-70px) scale(1.08)`;
+                copy.style.transform = `rotate(${angle}deg) translateY(-50px)`;
                 
                 setTimeout(() => {
                     copy.style.transition = 'all 800ms cubic-bezier(0.4, 0, 0.2, 1)';
@@ -704,7 +738,7 @@
                     copy.style.top = targetRect.top + 'px';
                     copy.style.width = targetRect.width + 'px';
                     copy.style.height = targetRect.height + 'px';
-                    copy.style.transform = 'rotate(0deg) translateY(0) scale(1)';
+                    copy.style.transform = 'rotate(0deg) translateY(0)';
                 }, 200);
                 
                 setTimeout(() => {

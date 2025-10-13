@@ -523,6 +523,11 @@
                 const angle = baseAngle + rotation;
                 card.style.transform = `rotate(${angle}deg) translateY(-33.5vh)`;
                 
+                // 🔥 НЕ ТРОГАЕМ УЖЕ ВЫБРАННЫЕ КАРТЫ!
+                if (card.dataset.selected === 'true') {
+                    return;  // Пропускаем выбранные карты
+                }
+                
                 if (Math.abs(angle) > 90) {
                     card.style.opacity = '0';
                     card.style.pointerEvents = 'none';
@@ -672,6 +677,7 @@
             
             card.style.opacity = '0';
             card.style.pointerEvents = 'none';
+            card.dataset.selected = 'true';  // 🔥 ПОМЕЧАЕМ КАК ВЫБРАННУЮ
             
             const copy = document.createElement('div');
             copy.className = 'fan-card';

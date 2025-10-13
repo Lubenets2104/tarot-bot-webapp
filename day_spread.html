@@ -35,9 +35,8 @@
             height: 100vh;
             position: relative;
             overflow: hidden;
-            background:
-                radial-gradient(38% 38% at 78% 13%, rgba(115, 130, 255, 0.22), transparent 62%),
-                linear-gradient(180deg, #162734 0%, #0f1b24 100%);
+            background: url('images/bg-new.jpg') center center no-repeat;
+            background-size: auto 100%;
         }
 
         .topbar {
@@ -108,7 +107,7 @@
         }
 
         .card-back-face {
-            background: url("images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png") center/cover no-repeat;
+            background: url("images/back-of-the-card-new.png") center/cover no-repeat;
             border: 3px solid #F2F5FA;
             border-radius: 12px;
             box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.3) inset,
@@ -152,6 +151,7 @@
             height: 28vh;
             overflow: hidden;
             pointer-events: none;
+            z-index: 100;
         }
 
         .fan-container {
@@ -171,11 +171,11 @@
 
         .fan-card {
             position: absolute;
-            width: 85px;
+            width: 74px;
             height: 132px;
             left: 50%;
             bottom: 0;
-            margin-left: -42.5px;
+            margin-left: -37px;
             transform-origin: center 33.5vh;
             pointer-events: auto;
             cursor: pointer;
@@ -184,7 +184,7 @@
         .fan-card img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             border-radius: 8px;
             border: 2.5px solid #E8EDF2;
             box-shadow: 
@@ -433,8 +433,8 @@
         const rightEdge = document.getElementById('rightEdge');
         
         const CARDS_COUNT = 78;
-        const TOTAL_ANGLE = 540;
-        const CARD_IMAGE = 'images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png';
+        const TOTAL_ANGLE = 360;
+        const CARD_IMAGE = 'images/back-of-the-card-new.png';
         const SLOTS_COUNT = 3;
         
         const TAROT_CARDS = [

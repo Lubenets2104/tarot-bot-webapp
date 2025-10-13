@@ -9,7 +9,10 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
             -webkit-tap-highlight-color: transparent;
+            outline: none !important;
+            -webkit-touch-callout: none !important;
         }
 
         html, body {
@@ -24,7 +27,7 @@
             align-items: center;
             justify-content: center;
             background: #000;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: Georgia, serif;
             user-select: none;
             -webkit-user-select: none;
             touch-action: pan-y;
@@ -35,9 +38,8 @@
             height: 100vh;
             position: relative;
             overflow: hidden;
-            background:
-                radial-gradient(38% 38% at 78% 13%, rgba(115, 130, 255, 0.22), transparent 62%),
-                linear-gradient(180deg, #162734 0%, #0f1b24 100%);
+            background: url('images/bg-new.jpg') center center no-repeat;
+            background-size: cover;
         }
 
         .topbar {
@@ -49,7 +51,6 @@
         }
 
         .topbar h1 {
-            font-family: Georgia, serif;
             font-weight: 700;
             font-size: 20px;
             color: #fff;
@@ -60,13 +61,13 @@
         /* 🔥 КОНТЕЙНЕР ДЛЯ 5 КАРТ В ФОРМЕ КРЕСТА */
         .cards-grid {
             width: 100%;
-            max-width: 320px;
-            margin: 16px auto 0;
+            max-width: 250px;
+            margin: 24px auto 0;
             padding: 0 16px;
             display: grid;
-            grid-template-columns: repeat(3, 90px);
-            grid-template-rows: 130px 130px 130px; /* Высота строк увеличена */
-            gap: 8px;
+            grid-template-columns: repeat(3, 74px);
+            grid-template-rows: 132px 132px 132px;
+            gap: 10px;
             justify-content: center;
         }
 
@@ -78,8 +79,8 @@
         #slot-4 { grid-column: 2; grid-row: 3; } /* Низ */
 
         .card-slot {
-            width: 90px;
-            height: 138px;
+            width: 74px;
+            height: 132px;
             position: relative;
             perspective: 1000px;
         }
@@ -107,19 +108,18 @@
 
         /* Пустой слот */
         .card-empty {
-            background: linear-gradient(#142c34, #142c34) padding-box,
-                        conic-gradient(from 145deg at 50% 50%,
-                            #66e8d1 0deg, #6fd9ff 110deg, #9aa2ff 170deg, #c688ff 270deg, #66e8d1 360deg
-                        ) border-box;
-            border: 2px solid transparent;
-            box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.2) inset;
+            background: rgba(20, 44, 52, 0.3);
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.15) inset,
+                        0 8px 20px rgba(0, 0, 0, 0.3);
             z-index: 2;
         }
 
         /* Задняя сторона карты */
         .card-back-face {
-            background: url("images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png") center/cover no-repeat;
-            border: 3px solid #F2F5FA;
+            background: url("images/back-of-the-card-new.png") center/cover no-repeat;
+            border: none;
             border-radius: 12px;
             box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.3) inset,
                         0 8px 20px rgba(0, 0, 0, 0.5);
@@ -134,7 +134,7 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            border: 3px solid #F2F5FA;
+            border: none;
             border-radius: 12px;
             box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.3) inset,
                         0 8px 20px rgba(0, 0, 0, 0.5);
@@ -157,12 +157,13 @@
 
         .fan-wrapper {
             position: absolute;
-            bottom: 40px;
+            bottom: 20px;
             left: 0;
             right: 0;
-            height: 28vh;
+            height: 35vh;
             overflow: hidden;
             pointer-events: none;
+            z-index: 100;
         }
 
         .fan-container {
@@ -170,7 +171,7 @@
             width: 1600px;
             height: 56vh;
             left: 50%;
-            bottom: calc(-56vh + 28vh);
+            bottom: calc(-56vh + 35vh);
             transform: translateX(-50%);
             pointer-events: auto;
             cursor: grab;
@@ -182,14 +183,24 @@
 
         .fan-card-wrapper {
             position: absolute;
-            width: 85px;
+            width: 74px;
             height: 132px;
             left: 50%;
             bottom: 0;
-            margin-left: -42.5px;
+            margin-left: -37px;
             transform-origin: center 33.5vh;
             pointer-events: auto;
             cursor: pointer;
+            outline: none !important;
+            border: none !important;
+            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+            -webkit-tap-highlight-color: transparent !important;
+            -webkit-touch-callout: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+            touch-action: none !important;
         }
 
         .fan-card {
@@ -197,19 +208,53 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 
+                0 2px 6px rgba(0, 0, 0, 0.4),
+                0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .fan-card-wrapper:focus,
+        .fan-card-wrapper:active,
+        .fan-card-wrapper:focus-visible {
+            outline: none !important;
+            border: none !important;
+        }
+
+        .fan-card-wrapper::before,
+        .fan-card-wrapper::after {
+            display: none !important;
         }
 
         .fan-card img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 2.5px solid #E8EDF2;
-            box-shadow: 
-                0 2px 6px rgba(0, 0, 0, 0.4),
-                0 4px 12px rgba(0, 0, 0, 0.3);
-            background: #1a2a38;
+            object-fit: contain;
+            border-radius: 0;
+            border: none !important;
+            box-shadow: none !important;
             pointer-events: none;
+            outline: none !important;
+            -webkit-user-drag: none;
+            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+            background: transparent;
+            display: block;
+            touch-action: none !important;
+        }
+
+        .fan-card img:focus,
+        .fan-card img:active {
+            outline: none !important;
+            border: none !important;
+        }
+
+        .fan-card.animating-copy {
+            outline: none !important;
+            border: none !important;
+            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4),
+                        0 4px 12px rgba(0, 0, 0, 0.3) !important;
         }
 
         .fan-edge-indicator {
@@ -292,8 +337,8 @@
             transform: translate(-50%, 14px);
             bottom: 30px;
             padding: 16px 32px;
-            background: linear-gradient(90deg, #1ad4c6 0%, #2fe4a7 100%);
-            color: #fff;
+            background: #E8DCC8;
+            color: #2C1810;
             border: 0;
             border-radius: 28px;
             font-weight: 700;
@@ -303,6 +348,7 @@
             pointer-events: none;
             transition: opacity 0.3s, transform 0.3s;
             cursor: pointer;
+            z-index: 200;
         }
 
         .open-btn.show {
@@ -322,8 +368,8 @@
             transform: translate(-50%, 14px);
             bottom: 30px;
             padding: 16px 32px;
-            background: linear-gradient(90deg, #1ad4c6 0%, #2fe4a7 100%);
-            color: #fff;
+            background: #E8DCC8;
+            color: #2C1810;
             border: 0;
             border-radius: 28px;
             font-weight: 700;
@@ -333,6 +379,7 @@
             pointer-events: none;
             transition: opacity 0.3s ease 0.8s, transform 0.3s ease 0.8s;
             cursor: pointer;
+            z-index: 200;
         }
 
         .result-btn.show {
@@ -472,8 +519,8 @@
         const rightEdge = document.getElementById('rightEdge');
         
         const CARDS_COUNT = 78;
-        const TOTAL_ANGLE = 540; // Вернули как было
-        const CARD_IMAGE = 'images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png';
+        const TOTAL_ANGLE = 360;
+        const CARD_IMAGE = 'images/back-of-the-card-new.png';
         const SLOTS_COUNT = 5;
         
         const TAROT_CARDS = [
@@ -746,14 +793,23 @@
                 updateFan(currentRotation);
             }, 50);
             
+            // 🎯 ИСПРАВЛЕНИЕ: Используем фиксированные размеры карты
+            const CARD_WIDTH = 74;
+            const CARD_HEIGHT = 132;
+            
+            // Вычисляем центр повернутой карты
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
             const copy = document.createElement('div');
             copy.className = 'fan-card';
             copy.innerHTML = card.innerHTML;
             copy.style.position = 'fixed';
-            copy.style.left = rect.left + 'px';
-            copy.style.top = rect.top + 'px';
-            copy.style.width = rect.width + 'px';
-            copy.style.height = rect.height + 'px';
+            // Позиционируем копию по центру с фиксированными размерами
+            copy.style.left = (centerX - CARD_WIDTH / 2) + 'px';
+            copy.style.top = (centerY - CARD_HEIGHT / 2) + 'px';
+            copy.style.width = CARD_WIDTH + 'px';
+            copy.style.height = CARD_HEIGHT + 'px';
             copy.style.margin = '0';
             copy.style.transform = `rotate(${angle}deg)`;
             copy.style.transformOrigin = 'center center';

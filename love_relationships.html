@@ -578,7 +578,12 @@
             wrappers.forEach((wrapper, i) => {
                 const baseAngle = -TOTAL_ANGLE/2 + i * angleStep;
                 const angle = baseAngle + rotation;
-                wrapper.style.transform = `rotate(${angle}deg) translateY(-33.5vh)`;
+                wrapper.style.transform = `rotate(${ angle}deg) translateY(-33.5vh)`;
+                
+                // 🔥 НЕ ТРОГАЕМ УЖЕ ВЫБРАННЫЕ КАРТЫ!
+                if (wrapper.dataset.selected === 'true') {
+                    return;  // Пропускаем выбранные карты
+                }
                 
                 if (Math.abs(angle) > 90) {
                     wrapper.style.opacity = '0';
@@ -734,6 +739,7 @@
             const cardWrapper = card.closest('.fan-card-wrapper');
             card.style.opacity = '0';
             cardWrapper.style.pointerEvents = 'none';  // 🔥 Теперь на неё нельзя кликнуть!
+            cardWrapper.dataset.selected = 'true';  // 🔥 ПОМЕЧАЕМ КАК ВЫБРАННУЮ
             
             // ✅ ИСПРАВЛЕНО: Пересчитываем зоны кликабельности для оставшихся карт
             setTimeout(() => {

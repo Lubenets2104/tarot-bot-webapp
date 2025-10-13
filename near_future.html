@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -9,7 +9,10 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
             -webkit-tap-highlight-color: transparent;
+            outline: none !important;
+            -webkit-touch-callout: none !important;
         }
 
         html, body {
@@ -24,7 +27,7 @@
             align-items: center;
             justify-content: center;
             background: #000;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: Georgia, serif;
             user-select: none;
             -webkit-user-select: none;
             touch-action: pan-y;
@@ -35,9 +38,8 @@
             height: 100vh;
             position: relative;
             overflow: hidden;
-            background:
-                radial-gradient(38% 38% at 78% 13%, rgba(115, 130, 255, 0.22), transparent 62%),
-                linear-gradient(180deg, #162734 0%, #0f1b24 100%);
+            background: url('images/bg-new.jpg') center center no-repeat;
+            background-size: cover;
         }
 
         .topbar {
@@ -49,39 +51,34 @@
         }
 
         .topbar h1 {
-            font-family: Georgia, serif;
             font-weight: 700;
-            font-size: 22px;
+            font-size: 20px;
             color: #fff;
             margin: 0;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        /* 🔥 КОНТЕЙНЕР ДЛЯ 5 КАРТ */
         .cards-grid {
             width: 100%;
-            max-width: 400px;
-            margin: 16px auto 0;
+            max-width: 320px;
+            margin: 24px auto 0;
             padding: 0 16px;
+            display: grid;
+            grid-template-columns: repeat(4, 74px);
+            grid-template-rows: 132px 132px;
+            gap: 10px;
+            justify-content: center;
         }
 
-        /* Верхний ряд - 4 карты */
-        .cards-row {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin-bottom: 8px;
-        }
-
-        /* Нижний ряд - 1 карта по центру */
-        .cards-row-single {
-            display: flex;
-            justify-content: center;
+        /* Центральная карта занимает всю ширину нижнего ряда и центрируется */
+        .card-slot:nth-child(5) {
+            grid-column: 2 / 4;
+            justify-self: center;
         }
 
         .card-slot {
-            width: 80px;
-            height: 123px;
+            width: 74px;
+            height: 132px;
             position: relative;
             perspective: 1000px;
         }
@@ -109,19 +106,18 @@
 
         /* Пустой слот */
         .card-empty {
-            background: linear-gradient(#142c34, #142c34) padding-box,
-                        conic-gradient(from 145deg at 50% 50%,
-                            #66e8d1 0deg, #6fd9ff 110deg, #9aa2ff 170deg, #c688ff 270deg, #66e8d1 360deg
-                        ) border-box;
-            border: 2px solid transparent;
-            box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.2) inset;
+            background: rgba(20, 44, 52, 0.3);
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.15) inset,
+                        0 8px 20px rgba(0, 0, 0, 0.3);
             z-index: 2;
         }
 
         /* Задняя сторона карты */
         .card-back-face {
-            background: url("images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png") center/cover no-repeat;
-            border: 3px solid #F2F5FA;
+            background: url("images/back-of-the-card-new.png") center/cover no-repeat;
+            border: none;
             border-radius: 12px;
             box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.3) inset,
                         0 8px 20px rgba(0, 0, 0, 0.5);
@@ -136,7 +132,7 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            border: 3px solid #F2F5FA;
+            border: none;
             border-radius: 12px;
             box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.3) inset,
                         0 8px 20px rgba(0, 0, 0, 0.5);
@@ -159,12 +155,13 @@
 
         .fan-wrapper {
             position: absolute;
-            bottom: 40px;
+            bottom: 20px;
             left: 0;
             right: 0;
-            height: 28vh;
+            height: 35vh;
             overflow: hidden;
             pointer-events: none;
+            z-index: 100;
         }
 
         .fan-container {
@@ -172,7 +169,7 @@
             width: 1600px;
             height: 56vh;
             left: 50%;
-            bottom: calc(-56vh + 28vh);
+            bottom: calc(-56vh + 35vh);
             transform: translateX(-50%);
             pointer-events: auto;
             cursor: grab;
@@ -182,36 +179,73 @@
             cursor: grabbing;
         }
 
-        .fan-card-wrapper {
+        .fan-card {
             position: absolute;
-            width: 85px;
+            width: 74px;
             height: 132px;
             left: 50%;
             bottom: 0;
-            margin-left: -42.5px;
+            margin-left: -37px;
             transform-origin: center 33.5vh;
             pointer-events: auto;
             cursor: pointer;
+            outline: none !important;
+            border: none !important;
+            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+            -webkit-tap-highlight-color: transparent !important;
+            -webkit-touch-callout: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+            touch-action: none !important;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 
+                0 2px 6px rgba(0, 0, 0, 0.4),
+                0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
-        .fan-card {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
+        .fan-card:focus,
+        .fan-card:active,
+        .fan-card:focus-visible {
+            outline: none !important;
+            border: none !important;
+        }
+
+        .fan-card::before,
+        .fan-card::after {
+            display: none !important;
         }
 
         .fan-card img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 2.5px solid #E8EDF2;
-            box-shadow: 
-                0 2px 6px rgba(0, 0, 0, 0.4),
-                0 4px 12px rgba(0, 0, 0, 0.3);
-            background: #1a2a38;
+            object-fit: contain;
+            border-radius: 0;
+            border: none !important;
+            box-shadow: none !important;
             pointer-events: none;
+            outline: none !important;
+            -webkit-user-drag: none;
+            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+            background: transparent;
+            display: block;
+            touch-action: none !important;
+        }
+
+        .fan-card img:focus,
+        .fan-card img:active {
+            outline: none !important;
+            border: none !important;
+        }
+
+        .fan-card.animating-copy {
+            outline: none !important;
+            border: none !important;
+            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4),
+                        0 4px 12px rgba(0, 0, 0, 0.3) !important;
         }
 
         .fan-edge-indicator {
@@ -296,8 +330,8 @@
             transform: translate(-50%, 14px);
             bottom: 30px;
             padding: 16px 32px;
-            background: linear-gradient(90deg, #1ad4c6 0%, #2fe4a7 100%);
-            color: #fff;
+            background: #E8DCC8;
+            color: #2C1810;
             border: 0;
             border-radius: 28px;
             font-weight: 700;
@@ -307,6 +341,7 @@
             pointer-events: none;
             transition: opacity 0.3s, transform 0.3s;
             cursor: pointer;
+            z-index: 200;
         }
 
         .open-btn.show {
@@ -327,8 +362,8 @@
             transform: translate(-50%, 14px);
             bottom: 30px;
             padding: 16px 32px;
-            background: linear-gradient(90deg, #1ad4c6 0%, #2fe4a7 100%);
-            color: #fff;
+            background: #E8DCC8;
+            color: #2C1810;
             border: 0;
             border-radius: 28px;
             font-weight: 700;
@@ -338,6 +373,7 @@
             pointer-events: none;
             transition: opacity 0.3s ease 0.8s, transform 0.3s ease 0.8s;
             cursor: pointer;
+            z-index: 200;
         }
 
         .result-btn.show {
@@ -355,41 +391,34 @@
 
         <!-- 🔥 5 СЛОТОВ ДЛЯ КАРТ -->
         <div class="cards-grid">
-            <!-- Верхний ряд: 4 карты -->
-            <div class="cards-row">
-                <div class="card-slot" id="slot-0">
-                    <div class="card-slot-inner">
-                        <div class="card-face card-empty"></div>
-                        <div class="card-face card-front-face"></div>
-                    </div>
-                </div>
-                <div class="card-slot" id="slot-1">
-                    <div class="card-slot-inner">
-                        <div class="card-face card-empty"></div>
-                        <div class="card-face card-front-face"></div>
-                    </div>
-                </div>
-                <div class="card-slot" id="slot-2">
-                    <div class="card-slot-inner">
-                        <div class="card-face card-empty"></div>
-                        <div class="card-face card-front-face"></div>
-                    </div>
-                </div>
-                <div class="card-slot" id="slot-3">
-                    <div class="card-slot-inner">
-                        <div class="card-face card-empty"></div>
-                        <div class="card-face card-front-face"></div>
-                    </div>
+            <div class="card-slot" id="slot-0">
+                <div class="card-slot-inner">
+                    <div class="card-face card-empty"></div>
+                    <div class="card-face card-front-face"></div>
                 </div>
             </div>
-
-            <!-- Нижний ряд: 1 карта по центру -->
-            <div class="cards-row-single">
-                <div class="card-slot" id="slot-4">
-                    <div class="card-slot-inner">
-                        <div class="card-face card-empty"></div>
-                        <div class="card-face card-front-face"></div>
-                    </div>
+            <div class="card-slot" id="slot-1">
+                <div class="card-slot-inner">
+                    <div class="card-face card-empty"></div>
+                    <div class="card-face card-front-face"></div>
+                </div>
+            </div>
+            <div class="card-slot" id="slot-2">
+                <div class="card-slot-inner">
+                    <div class="card-face card-empty"></div>
+                    <div class="card-face card-front-face"></div>
+                </div>
+            </div>
+            <div class="card-slot" id="slot-3">
+                <div class="card-slot-inner">
+                    <div class="card-face card-empty"></div>
+                    <div class="card-face card-front-face"></div>
+                </div>
+            </div>
+            <div class="card-slot" id="slot-4">
+                <div class="card-slot-inner">
+                    <div class="card-face card-empty"></div>
+                    <div class="card-face card-front-face"></div>
                 </div>
             </div>
         </div>
@@ -476,8 +505,8 @@
         const rightEdge = document.getElementById('rightEdge');
         
         const CARDS_COUNT = 78;
-        const TOTAL_ANGLE = 540;
-        const CARD_IMAGE = 'images/back-of-the-card-5899b85ca6b89b2340680b825628273d.png';
+        const TOTAL_ANGLE = 360;
+        const CARD_IMAGE = 'images/back-of-the-card-new.png';
         const SLOTS_COUNT = 5;
         
         const TAROT_CARDS = [
@@ -518,12 +547,9 @@
             const angleStep = TOTAL_ANGLE / (CARDS_COUNT - 1);
             
             for (let i = 0; i < CARDS_COUNT; i++) {
-                const cardWrapper = document.createElement('div');
-                cardWrapper.className = 'fan-card-wrapper';
-                cardWrapper.dataset.index = i;
-                
                 const card = document.createElement('div');
                 card.className = 'fan-card';
+                card.dataset.index = i;
                 
                 const img = document.createElement('img');
                 img.src = CARD_IMAGE;
@@ -534,73 +560,56 @@
                 
                 // 🎯 УНИВЕРСАЛЬНОЕ РЕШЕНИЕ: Клик прямо на карту
                 // Работает при ЛЮБОМ масштабе, т.к. браузер сам определяет границы элемента
-                cardWrapper.addEventListener('click', (e) => {
+                card.addEventListener('click', (e) => {
                     e.stopPropagation();
                     // Проверяем: не анимация, слот доступен, и не было драга
-                    if (!isAnimating && currentSlot < SLOTS_COUNT && cardWrapper.style.opacity !== '0' && dragDistance < 10) {
+                    if (!isAnimating && currentSlot < SLOTS_COUNT && card.style.opacity !== '0' && dragDistance < 10) {
                         selectCard(card);
                     }
                 });
                 
                 // 📱 Обработка touch-событий для мобильных устройств
-                cardWrapper.addEventListener('touchend', (e) => {
+                card.addEventListener('touchend', (e) => {
                     // Если не было драга - это тап по карте
-                    if (!isAnimating && currentSlot < SLOTS_COUNT && cardWrapper.style.opacity !== '0' && dragDistance < 10) {
+                    if (!isAnimating && currentSlot < SLOTS_COUNT && card.style.opacity !== '0' && dragDistance < 10) {
                         e.preventDefault();
                         e.stopPropagation();
                         selectCard(card);
                     }
                 }, {passive: false});
                 
-                cardWrapper.appendChild(card);
-                fanContainer.appendChild(cardWrapper);
+                fanContainer.appendChild(card);
                 
                 const angle = -TOTAL_ANGLE/2 + i * angleStep;
-                cardWrapper.style.transform = `rotate(${angle}deg) translateY(-33.5vh)`;
-                cardWrapper.style.zIndex = i;
+                card.style.transform = `rotate(${angle}deg) translateY(-33.5vh)`;
+                card.style.zIndex = i;
             }
         }
         
-        // 🔥 ДИНАМИЧЕСКИЙ РАСЧЕТ ВИДИМОЙ ЗОНЫ: работает на всех устройствах!
         function updateFan(rotation) {
-            const wrappers = fanContainer.querySelectorAll('.fan-card-wrapper');
+            const cards = fanContainer.querySelectorAll('.fan-card');
             const angleStep = TOTAL_ANGLE / (CARDS_COUNT - 1);
             
-            // Шаг 1: Собираем все видимые карты с их позициями
-            let visibleCards = [];
-            wrappers.forEach((wrapper, i) => {
+            cards.forEach((card, i) => {
                 const baseAngle = -TOTAL_ANGLE/2 + i * angleStep;
                 const angle = baseAngle + rotation;
-                
-                // ✅ ИСПРАВЛЕНО: Игнорируем уже выбранные карты
-                if (Math.abs(angle) <= 90 && wrapper.style.pointerEvents !== 'none') {
-                    visibleCards.push({wrapper, index: i, angle});
-                }
-            });
-            
-            // Шаг 2: Обновляем каждую карту
-            wrappers.forEach((wrapper, i) => {
-                const baseAngle = -TOTAL_ANGLE/2 + i * angleStep;
-                const angle = baseAngle + rotation;
-                wrapper.style.transform = `rotate(${angle}deg) translateY(-33.5vh)`;
+                card.style.transform = `rotate(${angle}deg) translateY(-33.5vh)`;
                 
                 // 🔥 НЕ ТРОГАЕМ УЖЕ ВЫБРАННЫЕ КАРТЫ!
-                if (wrapper.dataset.selected === 'true') {
+                if (card.dataset.selected === 'true') {
                     return;  // Пропускаем выбранные карты
                 }
                 
-                const clickZone = wrapper.querySelector('.card-click-zone');
-                
                 if (Math.abs(angle) > 90) {
-                    wrapper.style.opacity = '0';
-                    wrapper.style.pointerEvents = 'none';
+                    card.style.opacity = '0';
+                    card.style.pointerEvents = 'none';
                 } else {
-                    wrapper.style.opacity = '1';
-                    wrapper.style.pointerEvents = 'auto';
+                    card.style.opacity = '1';
+                    card.style.pointerEvents = 'auto';
                 }
                 
                 // ✅ Z-index на основе ТЕКУЩЕГО угла (правые карты выше)
-                wrapper.style.zIndex = Math.floor(1000 + angle * 10);
+                card.style.zIndex = Math.floor(1000 + angle * 10);
             });
             
             updateEdgeIndicators(rotation);
@@ -723,14 +732,11 @@
             
             const targetSlotIndex = currentSlot;
             
-            // ✅ ИСПРАВЛЕНО: Выбираем карту, которой ещё нет в selectedCards
             let selectedCardName;
             do {
                 selectedCardName = TAROT_CARDS[Math.floor(Math.random() * TAROT_CARDS.length)];
             } while (selectedCards.includes(selectedCardName));
             selectedCards.push(selectedCardName);
-            
-            console.log('🎴 Выбранные карты:', selectedCards);
             
             const slot = document.getElementById(`slot-${targetSlotIndex}`);
             const targetRect = slot.getBoundingClientRect();
@@ -741,37 +747,51 @@
             const matrix = new DOMMatrix(transform);
             const angle = Math.atan2(matrix.b, matrix.a) * (180 / Math.PI);
             
-            // 🔥 ИСПРАВЛЕНО: Полностью отключаем карту в веере
-            const cardWrapper = card.closest('.fan-card-wrapper');
             card.style.opacity = '0';
-            cardWrapper.style.pointerEvents = 'none';  // 🔥 Теперь на неё нельзя кликнуть!
-            cardWrapper.dataset.selected = 'true';  // 🔥 ПОМЕЧАЕМ КАК ВЫБРАННУЮ
+            card.style.pointerEvents = 'none';
+            card.dataset.selected = 'true';  // 🔥 ПОМЕЧАЕМ КАК ВЫБРАННУЮ
             
-            // ✅ ИСПРАВЛЕНО: Пересчитываем зоны кликабельности для оставшихся карт
-            setTimeout(() => {
-                updateFan(currentRotation);
-            }, 50);
+            // 🎯 ИСПРАВЛЕНИЕ: Используем фиксированные размеры карты
+            const CARD_WIDTH = 74;
+            const CARD_HEIGHT = 132;
+            
+            // Вычисляем центр повернутой карты
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
             
             const copy = document.createElement('div');
-            copy.className = 'fan-card';
+            copy.className = 'fan-card animating-copy';
             copy.innerHTML = card.innerHTML;
             copy.style.position = 'fixed';
-            copy.style.left = rect.left + 'px';
-            copy.style.top = rect.top + 'px';
-            copy.style.width = rect.width + 'px';
-            copy.style.height = rect.height + 'px';
+            // Позиционируем копию по центру с фиксированными размерами
+            copy.style.left = (centerX - CARD_WIDTH / 2) + 'px';
+            copy.style.top = (centerY - CARD_HEIGHT / 2) + 'px';
+            copy.style.width = CARD_WIDTH + 'px';
+            copy.style.height = CARD_HEIGHT + 'px';
             copy.style.margin = '0';
             copy.style.transform = `rotate(${angle}deg)`;
             copy.style.transformOrigin = 'center center';
             copy.style.zIndex = '3000';
             copy.style.pointerEvents = 'none';
+            copy.style.outline = 'none';
+            copy.style.border = 'none';
+            copy.style.webkitTapHighlightColor = 'rgba(0,0,0,0)';
             
             document.body.appendChild(copy);
+            
+            // Убираем рамки у img внутри копии
+            const copyImg = copy.querySelector('img');
+            if (copyImg) {
+                copyImg.style.outline = 'none';
+                copyImg.style.border = 'none';
+                copyImg.style.boxShadow = 'none';
+            }
+            
             copy.offsetHeight;
             
             requestAnimationFrame(() => {
                 copy.style.transition = 'transform 200ms ease-out';
-                copy.style.transform = `rotate(${angle}deg) translateY(-70px) scale(1.08)`;
+                copy.style.transform = `rotate(${angle}deg) translateY(-50px)`;
                 
                 setTimeout(() => {
                     copy.style.transition = 'all 800ms cubic-bezier(0.4, 0, 0.2, 1)';
@@ -779,7 +799,7 @@
                     copy.style.top = targetRect.top + 'px';
                     copy.style.width = targetRect.width + 'px';
                     copy.style.height = targetRect.height + 'px';
-                    copy.style.transform = 'rotate(0deg) translateY(0) scale(1)';
+                    copy.style.transform = 'rotate(0deg) translateY(0)';
                 }, 200);
                 
                 setTimeout(() => {
@@ -803,7 +823,6 @@
                     
                     setTimeout(() => {
                         isAnimating = false;
-                        console.log('✅ Анимация завершена, можно выбирать следующую карту');
                         
                         if (currentSlot >= SLOTS_COUNT) {
                             app.classList.add('all-picked');
@@ -838,13 +857,11 @@
         });
         
         resultBtn.addEventListener('click', () => {
-            // 🔥 ПЕРЕДАЕМ ВСЕ ВЫБРАННЫЕ КАРТЫ
             const data = JSON.stringify({
-                cards: selectedCards,  // Массив из 5 карт
+                cards: selectedCards,
                 type: 'near_future'
             });
             
-            console.log('📤 Отправка данных в бот:', data);
             tg.sendData(data);
         });
         

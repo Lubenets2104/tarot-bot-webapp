@@ -490,12 +490,21 @@
                 // Работает при ЛЮБОМ масштабе, т.к. браузер сам определяет границы элемента
                 card.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    // Проверяем только: не анимация и слот доступен
-                    // Браузер сам не вызовет 'click' если был драг!
-                    if (!isAnimating && currentSlot < SLOTS_COUNT && card.style.opacity !== '0') {
+                    // Проверяем: не анимация, слот доступен, и не было драга
+                    if (!isAnimating && currentSlot < SLOTS_COUNT && card.style.opacity !== '0' && dragDistance < 10) {
                         selectCard(card);
                     }
                 });
+                
+                // 📱 Обработка touch-событий для мобильных устройств
+                card.addEventListener('touchend', (e) => {
+                    // Если не было драга - это тап по карте
+                    if (!isAnimating && currentSlot < SLOTS_COUNT && card.style.opacity !== '0' && dragDistance < 10) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        selectCard(card);
+                    }
+                }, {passive: false});
                 
                 fanContainer.appendChild(card);
                 

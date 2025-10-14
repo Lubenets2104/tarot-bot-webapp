@@ -43,16 +43,14 @@
         }
 
         .topbar {
-            height: 56px;
+            height: 150px;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
         }
 
-        .topbar h1 {
-            font-weight: 700;
-            font-size: 20px;
+        .topbar h1 { font-weight: normal; font-size: 24px;
             color: #fff;
             margin: 0;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -63,7 +61,7 @@
         .cards-grid {
             width: 100%;
             max-width: 250px;
-            margin: 24px auto 0;
+            margin: -20px auto 0;
             padding: 0 16px;
             display: grid;
             grid-template-columns: repeat(3, 74px);
@@ -95,7 +93,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            border-radius: 12px;
+            border-radius: 8px;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
         }
@@ -103,7 +101,7 @@
         .card-empty {
             background: rgba(20, 44, 52, 0.3);
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.15) inset,
                         0 8px 20px rgba(0, 0, 0, 0.3);
             z-index: 2;
@@ -112,7 +110,7 @@
         .card-back-face {
             background: url("images/back-of-the-card-new.png") center/cover no-repeat;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.3) inset,
                         0 8px 20px rgba(0, 0, 0, 0.5);
             z-index: 2;
@@ -126,7 +124,7 @@
             justify-content: center;
             overflow: hidden;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.3) inset,
                         0 8px 20px rgba(0, 0, 0, 0.5);
         }
@@ -138,14 +136,20 @@
         }
 
         .hint {
+            position: absolute;
+            left: 50%;
+            top: 296px;
+            transform: translateX(-50%);
             text-align: center;
-            color: #b7c7d5;
-            line-height: 1.35;
-            font-size: 13px;
-            margin: 24px 16px 0;
+            color: #ffffff;
+            font-size: 14px;
+            font-family: Georgia, serif;
+            pointer-events: none;
             transition: opacity 0.35s ease;
             text-transform: uppercase;
             letter-spacing: 0.3px;
+            width: 100%;
+            max-width: 90%;
         }
 
         .fan-wrapper {
@@ -273,8 +277,9 @@
             bottom: 10px;
             transform: translateX(-50%);
             text-align: center;
-            color: rgba(183, 199, 213, 0.9);
-            font-size: 13px;
+            color: #ffffff;
+            font-size: 14px;
+            font-family: Georgia, serif;
             pointer-events: none;
             transition: opacity 0.35s ease;
             z-index: 10;
@@ -323,14 +328,14 @@
             position: absolute;
             left: 50%;
             transform: translate(-50%, 14px);
-            bottom: 30px;
-            padding: 16px 32px;
-            background: #E8DCC8;
-            color: #2C1810;
-            border: 0;
-            border-radius: 28px;
-            font-weight: 700;
-            font-size: 18px;
+            bottom: 80px;
+            padding: 18px 40px;
+            background: #d7b694;
+            color: #53362d;
+            border: none;
+            border-radius: 8px;
+            font-weight: normal;
+            font-size: 16px; font-family: Georgia, serif; text-transform: uppercase; letter-spacing: 0.5px;
             box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
             opacity: 0;
             pointer-events: none;
@@ -353,14 +358,14 @@
             position: absolute;
             left: 50%;
             transform: translate(-50%, 14px);
-            bottom: 30px;
-            padding: 16px 32px;
-            background: #E8DCC8;
-            color: #2C1810;
-            border: 0;
-            border-radius: 28px;
-            font-weight: 700;
-            font-size: 18px;
+            bottom: 80px;
+            padding: 18px 40px;
+            background: #d7b694;
+            color: #53362d;
+            border: none;
+            border-radius: 8px;
+            font-weight: normal;
+            font-size: 16px; font-family: Georgia, serif; text-transform: uppercase; letter-spacing: 0.5px;
             box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
             opacity: 0;
             pointer-events: none;
@@ -405,7 +410,7 @@
         </div>
 
         <p class="hint">
-            Выбери 3 карты для расклада на день
+            ВЫБЕРИ ТРИ КАРТЫ ДЛЯ РАСКЛАДА НА ДЕНЬ
         </p>
 
         <div class="fan-wrapper">
@@ -849,3 +854,5 @@
     </script>
 </body>
 </html>
+
+

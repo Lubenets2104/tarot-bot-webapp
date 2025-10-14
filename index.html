@@ -43,16 +43,17 @@
         }
 
         .topbar {
-            height: 56px;
+            height: 150px;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
         }
 
-        .topbar h1 {
-            font-weight: 700;
-            font-size: 20px;
+        .topbar h1 { 
+            font-weight: normal; 
+            font-size: 24px;
+            font-family: Georgia, serif;
             color: #fff;
             margin: 0;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -63,17 +64,13 @@
         .center-card {
             width: 74px;
             height: 132px;
-            margin: 30px auto 0;
+            margin: -20px auto 0;
             position: relative;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             perspective: 1000px;
         }
         
-        .app.picked .center-card {
-            width: 74px;
-            height: 132px;
-            margin-top: 60px;
-        }
+
 
         .card-inner {
             position: relative;
@@ -91,7 +88,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            border-radius: 12px;
+            border-radius: 8px;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
         }
@@ -99,7 +96,7 @@
         .card-front {
             background: rgba(20, 44, 52, 0.3);
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.15) inset,
                         0 8px 20px rgba(0, 0, 0, 0.3);
             transition: all 0.35s ease;
@@ -109,7 +106,7 @@
         .center-card .card-front.selected {
             background: url("images/back-of-the-card-new.png") center/cover no-repeat;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.3) inset,
                         0 8px 20px rgba(0, 0, 0, 0.5);
         }
@@ -122,7 +119,7 @@
             justify-content: center;
             overflow: hidden;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             box-shadow: 0 0 0 1px rgba(248, 252, 255, 0.3) inset,
                         0 8px 20px rgba(0, 0, 0, 0.5);
         }
@@ -136,8 +133,8 @@
         .card-name {
             text-align: center;
             color: #fff;
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 16px; font-family: Georgia, serif;
+            font-weight: normal;
             margin-top: 16px;
             opacity: 0;
             transition: opacity 0.5s ease 0.3s;
@@ -148,24 +145,23 @@
             opacity: 1;
         }
 
-        .glow {
-            position: absolute;
-            inset: -40px;
-            background: radial-gradient(180px 180px at 80% 10%, rgba(110, 120, 255, 0.35), transparent 60%);
-            filter: blur(16px);
-            pointer-events: none;
-            z-index: 1;
-        }
+
 
         .hint {
+            position: absolute;
+            left: 50%;
+            top: 296px;
+            transform: translateX(-50%);
             text-align: center;
-            color: #b7c7d5;
-            line-height: 1.35;
-            font-size: 13px;
-            margin: 24px 16px 0;
+            color: #ffffff;
+            font-size: 14px;
+            font-family: Georgia, serif;
+            pointer-events: none;
             transition: opacity 0.35s ease;
             text-transform: uppercase;
             letter-spacing: 0.3px;
+            width: 100%;
+            max-width: 90%;
         }
 
         .fan-wrapper {
@@ -293,8 +289,9 @@
             bottom: 10px;
             transform: translateX(-50%);
             text-align: center;
-            color: rgba(183, 199, 213, 0.9);
-            font-size: 13px;
+            color: #ffffff;
+            font-size: 14px;
+            font-family: Georgia, serif;
             pointer-events: none;
             transition: opacity 0.35s ease;
             z-index: 10;
@@ -343,14 +340,14 @@
             position: absolute;
             left: 50%;
             transform: translate(-50%, 14px);
-            bottom: 30px;
-            padding: 16px 32px;
-            background: #E8DCC8;
-            color: #2C1810;
-            border: 0;
-            border-radius: 28px;
-            font-weight: 700;
-            font-size: 18px;
+            bottom: 120px;
+            padding: 18px 40px;
+            background: #d7b694;
+            color: #53362d;
+            border: none;
+            border-radius: 8px;
+            font-weight: normal;
+            font-size: 16px; font-family: Georgia, serif; text-transform: uppercase; letter-spacing: 0.5px;
             box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
             opacity: 0;
             pointer-events: none;
@@ -374,14 +371,14 @@
             position: absolute;
             left: 50%;
             transform: translate(-50%, 14px);
-            bottom: 30px;
-            padding: 16px 32px;
-            background: #E8DCC8;
-            color: #2C1810;
-            border: 0;
-            border-radius: 28px;
-            font-weight: 700;
-            font-size: 18px;
+            bottom: 120px;
+            padding: 18px 40px;
+            background: #d7b694;
+            color: #53362d;
+            border: none;
+            border-radius: 8px;
+            font-weight: normal;
+            font-size: 16px; font-family: Georgia, serif; text-transform: uppercase; letter-spacing: 0.5px;
             box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
             opacity: 0;
             pointer-events: none;
@@ -404,7 +401,6 @@
         </header>
 
         <div class="center-card" id="centerCard">
-            <div class="glow"></div>
             <div class="card-inner">
                 <div class="card-rect card-front"></div>
                 <div class="card-rect card-back"></div>
@@ -414,7 +410,7 @@
         <div class="card-name" id="cardName"></div>
 
         <p class="hint">
-            Выбери 1 карту
+            ВЫБЕРИ ОДНУ КАРТУ
         </p>
 
         <div class="fan-wrapper">

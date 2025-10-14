@@ -341,8 +341,8 @@
         .open-btn {
             position: absolute;
             left: 50%;
-            transform: translate(-50%, 14px);
-            bottom: 120px;
+            transform: translateX(-50%);
+            bottom: 106px;
             padding: 18px 40px;
             background: #d7b694;
             color: #53362d;
@@ -356,7 +356,7 @@
             box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s, transform 0.3s;
+            transition: opacity 0.3s, bottom 0.3s;
             cursor: pointer;
             z-index: 200;
         }
@@ -364,7 +364,7 @@
         .open-btn.show {
             opacity: 1;
             pointer-events: auto;
-            transform: translate(-50%, 0);
+            bottom: 120px;
         }
 
         /* Скрываем кнопку Open cards после переворота */
@@ -376,8 +376,8 @@
         .result-btn {
             position: absolute;
             left: 50%;
-            transform: translate(-50%, 14px);
-            bottom: 120px;
+            transform: translateX(-50%);
+            bottom: 106px;
             padding: 18px 40px;
             background: #d7b694;
             color: #53362d;
@@ -391,7 +391,7 @@
             box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease 0.8s, transform 0.3s ease 0.8s;
+            transition: opacity 0.3s ease 0.8s, bottom 0.3s ease 0.8s;
             cursor: pointer;
             z-index: 200;
         }
@@ -399,7 +399,7 @@
         .result-btn.show {
             opacity: 1;
             pointer-events: auto;
-            transform: translate(-50%, 0);
+            bottom: 120px;
         }
     </style>
 </head>
